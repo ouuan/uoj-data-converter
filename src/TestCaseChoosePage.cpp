@@ -17,6 +17,7 @@ ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
 {
     setSortingEnabled(true);
     setAcceptDrops(true);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
 
 void ListWidget::dragEnterEvent(QDragEnterEvent *event)
@@ -58,14 +59,10 @@ void ListWidget::addItem(const QString &title)
     emit itemChanged();
 }
 
-void ListWidget::deleteCurrentItem()
+void ListWidget::deleteSelectedItems()
 {
-    auto item = currentItem();
-    if (item)
-    {
+    for (auto item : selectedItems())
         delete item;
-        emit itemChanged();
-    }
 }
 
 QStringList ListWidget::itemLabels() const
@@ -96,8 +93,10 @@ TestCaseChoosePage::TestCaseChoosePage(QWidget *parent) : QWizardPage(parent)
     auto addInputButton = new QPushButton("添加", this);
     connect(addInputButton, &QPushButton::clicked, this, &TestCaseChoosePage::addInput);
     inputButtonLayout->addWidget(addInputButton);
-    auto deleteInputButton = new QPushButton("删除", this);
-    connect(deleteInputButton, &QPushButton::clicked, inputList, &ListWidget::deleteCurrentItem);
+    deleteInputButton = new QPushButton("删除", this);
+    connect(deleteInputButton, &QPushButton::clicked, inputList, &ListWidget::deleteSelectedItems);
+    connect(inputList, &QListWidget::itemSelectionChanged, this,
+            &TestCaseChoosePage::updateButtons);
     inputButtonLayout->addWidget(deleteInputButton);
 
     auto outputLayout = new QVBoxLayout();
@@ -111,9 +110,14 @@ TestCaseChoosePage::TestCaseChoosePage(QWidget *parent) : QWizardPage(parent)
     auto addOutputButton = new QPushButton("添加", this);
     connect(addOutputButton, &QPushButton::clicked, this, &TestCaseChoosePage::addOutput);
     outputButtonLayout->addWidget(addOutputButton);
-    auto deleteOutputButton = new QPushButton("删除", this);
-    connect(deleteOutputButton, &QPushButton::clicked, outputList, &ListWidget::deleteCurrentItem);
+    deleteOutputButton = new QPushButton("删除", this);
+    connect(deleteOutputButton, &QPushButton::clicked, outputList,
+            &ListWidget::deleteSelectedItems);
+    connect(outputList, &QListWidget::itemSelectionChanged, this,
+            &TestCaseChoosePage::updateButtons);
     outputButtonLayout->addWidget(deleteOutputButton);
+
+    updateButtons();
 }
 
 bool TestCaseChoosePage::isComplete() const
@@ -141,4 +145,10 @@ void TestCaseChoosePage::addOutput()
 {
     for (auto path : QFileDialog::getOpenFileNames(this, "添加输出文件"))
         outputList->addItem(path);
+}
+
+void TestCaseChoosePage::updateButtons()
+{
+    deleteInputButton->setDisabled(inputList->selectedItems().isEmpty());
+    deleteOutputButton->setDisabled(outputList->selectedItems().isEmpty());
 }

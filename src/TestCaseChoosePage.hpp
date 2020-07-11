@@ -3,6 +3,8 @@
 #include <QListWidget>
 #include <QWizardPage>
 
+class QPushButton;
+
 namespace TestCaseChoose
 {
 class ListWidget : public QListWidget
@@ -23,7 +25,7 @@ class ListWidget : public QListWidget
     QStringList itemLabels() const;
 
    public slots:
-    void deleteCurrentItem();
+    void deleteSelectedItems();
 
    signals:
     void itemChanged();
@@ -48,7 +50,11 @@ class TestCaseChoosePage : public QWizardPage
 
     void addOutput();
 
+    void updateButtons();
+
    private:
     TestCaseChoose::ListWidget *inputList = nullptr;
     TestCaseChoose::ListWidget *outputList = nullptr;
+    QPushButton *deleteInputButton = nullptr;
+    QPushButton *deleteOutputButton = nullptr;
 };
