@@ -54,9 +54,18 @@ configure_file(src/version.hpp.in ${CMAKE_BINARY_DIR}/generated/version.hpp)
 
 add_executable(uoj-data-converter
   src/main.cpp
+  
+  src/MainWindow.hpp
+  src/MainWindow.cpp
+  src/TestCaseChoosePage.hpp
+  src/TestCaseChoosePage.cpp
 )
 
 include_directories("generated/")
+
+if(MSVC)
+    target_compile_options(uoj-data-converter PRIVATE "/utf-8")
+endif(MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(uoj-data-converter PRIVATE
@@ -64,7 +73,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 		-pedantic
 		-Wall
 		-Wextra
-		-Weffc++
 		-Woverloaded-virtual
 		-Winit-self
 		-Wunreachable-code
