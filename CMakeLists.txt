@@ -50,7 +50,7 @@ if(APPLE)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
 endif()
 
-configure_file(src/version.hpp.in ${CMAKE_BINARY_DIR}/generated/version.hpp)
+configure_file(cmake/version.hpp.in ${CMAKE_BINARY_DIR}/generated/version.hpp)
 
 add_executable(uoj-data-converter
   src/main.cpp
@@ -80,3 +80,11 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 target_link_libraries(uoj-data-converter PRIVATE Qt5::Widgets)
+
+if(APPLE)
+  set_target_properties(uoj-data-converter
+    PROPERTIES
+    MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/cmake/Info.plist.in
+  )
+endif()
