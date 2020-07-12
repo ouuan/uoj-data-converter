@@ -1,6 +1,5 @@
 #include "TestCaseConvertPage.hpp"
 
-#include <QCollator>
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -10,7 +9,6 @@
 #include <QRegularExpression>
 #include <QTableWidget>
 #include <QVBoxLayout>
-#include <algorithm>
 
 #include "ErrorLabel.hpp"
 #include "TestCaseChoosePage.hpp"
@@ -30,7 +28,8 @@ TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage,
     lineEditLayout->addStretch();
 
     auto problemNameLabel = new QLabel("题目名称", this);
-    problemNameLabel->setToolTip("转换后文件名的前缀，一般情况下不需要填写");
+    problemNameLabel->setToolTip(
+        "转换后文件名的前缀，若输入和输出文件的顺序都是正确的则不需要填写");
     lineEditLayout->addWidget(problemNameLabel);
 
     problemNameEdit = new QLineEdit(this);
@@ -40,7 +39,8 @@ TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage,
     lineEditLayout->addStretch();
 
     auto inputPatternLabel = new QLabel("输入模式", this);
-    inputPatternLabel->setToolTip("输入文件名的正则表达式，一般情况下不需要填写");
+    inputPatternLabel->setToolTip(
+        "输入文件名的正则表达式，若输入和输出文件的顺序都是正确的则不需要填写");
     lineEditLayout->addWidget(inputPatternLabel);
 
     inputPatternEdit = new QLineEdit(this);
@@ -86,14 +86,6 @@ void TestCaseConvertPage::initializePage()
     outputs = choosePage->outputs();
     Q_ASSERT(!inputs.empty());
     Q_ASSERT(inputs.count() == outputs.count());
-    QCollator collator;
-    collator.setNumericMode(true);
-    std::sort(inputs.begin(), inputs.end(), [&collator](const QString &x, const QString &y) {
-        return collator.compare(x, y) < 0;
-    });
-    std::sort(outputs.begin(), outputs.end(), [&collator](const QString &x, const QString &y) {
-        return collator.compare(x, y) < 0;
-    });
     subtaskBegins = QVector<bool>(inputs.size());
     subtaskBegins[0] = true;
     table->setRowCount(inputs.count());

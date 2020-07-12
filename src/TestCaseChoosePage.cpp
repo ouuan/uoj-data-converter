@@ -1,5 +1,6 @@
 #include "TestCaseChoosePage.hpp"
 
+#include <QCollator>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
 #include <QDropEvent>
@@ -10,12 +11,13 @@
 #include <QMimeData>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <algorithm>
 
 using TestCaseChoose::ListWidget;
+using TestCaseChoose::TestCaseChooseLayout;
 
 ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
 {
-    setSortingEnabled(true);
     setAcceptDrops(true);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
@@ -66,6 +68,28 @@ void ListWidget::deleteSelectedItems()
     emit itemChanged();
 }
 
+void ListWidget::naturalSort()
+{
+    QStringList labels;
+
+    while (count())
+    {
+        auto item = takeItem(0);
+        labels.push_back(item->text());
+        delete item;
+    }
+
+    QCollator collator;
+    collator.setNumericMode(true);
+    std::sort(labels.begin(), labels.end(), [&collator](const QString &x, const QString &y) {
+        return collator.compare(x, y) < 0;
+    });
+
+    addItems(labels);
+
+    emit itemChanged();
+}
+
 QStringList ListWidget::itemLabels() const
 {
     QStringList res;
@@ -76,83 +100,72 @@ QStringList ListWidget::itemLabels() const
     return res;
 }
 
+TestCaseChooseLayout::TestCaseChooseLayout(const QString &name, const QString &filter,
+                                           TestCaseChoosePage *parent)
+    : QVBoxLayout(), m_name(name), m_filter(filter)
+{
+    auto label = new QLabel(name, parent);
+    addWidget(label);
+    list = new ListWidget(parent);
+    connect(list, &ListWidget::itemChanged, parent, &QWizardPage::completeChanged);
+    addWidget(list);
+    auto buttonLayout = new QHBoxLayout();
+    addLayout(buttonLayout);
+    auto addButton = new QPushButton("添加", parent);
+    connect(addButton, &QPushButton::clicked, this, &TestCaseChooseLayout::addTestCase);
+    buttonLayout->addWidget(addButton);
+    deleteButton = new QPushButton("删除", parent);
+    connect(deleteButton, &QPushButton::clicked, list, &ListWidget::deleteSelectedItems);
+    connect(list, &QListWidget::itemSelectionChanged, this,
+            &TestCaseChooseLayout::updateDeleteButton);
+    buttonLayout->addWidget(deleteButton);
+    auto sortButton = new QPushButton("排序", parent);
+    connect(sortButton, &QPushButton::clicked, list, &ListWidget::naturalSort);
+    buttonLayout->addWidget(sortButton);
+    updateDeleteButton();
+}
+
+void TestCaseChooseLayout::addTestCase()
+{
+    const auto paths = QFileDialog::getOpenFileNames(
+        parentWidget(), QString("添加%1文件").arg(m_name), QString(),
+        QString("%1文件 (%2);;任何文件 (*)").arg(m_name).arg(m_filter));
+    for (auto path : paths)
+    {
+        if (!list->itemLabels().contains(path))
+            list->addItem(path);
+    }
+}
+
+void TestCaseChooseLayout::updateDeleteButton()
+{
+    deleteButton->setDisabled(list->selectedItems().isEmpty());
+}
+
 TestCaseChoosePage::TestCaseChoosePage(QWidget *parent) : QWizardPage(parent)
 {
     setTitle("选择数据文件");
 
     auto mainLayout = new QHBoxLayout(this);
 
-    auto inputLayout = new QVBoxLayout();
+    inputLayout = new TestCaseChooseLayout("输入", "*.in", this);
     mainLayout->addLayout(inputLayout);
-    auto inputLabel = new QLabel("输入", this);
-    inputLayout->addWidget(inputLabel);
-    inputList = new ListWidget(this);
-    connect(inputList, &ListWidget::itemChanged, this, &QWizardPage::completeChanged);
-    inputLayout->addWidget(inputList);
-    auto inputButtonLayout = new QHBoxLayout();
-    inputLayout->addLayout(inputButtonLayout);
-    auto addInputButton = new QPushButton("添加", this);
-    connect(addInputButton, &QPushButton::clicked, this, &TestCaseChoosePage::addInput);
-    inputButtonLayout->addWidget(addInputButton);
-    deleteInputButton = new QPushButton("删除", this);
-    connect(deleteInputButton, &QPushButton::clicked, inputList, &ListWidget::deleteSelectedItems);
-    connect(inputList, &QListWidget::itemSelectionChanged, this,
-            &TestCaseChoosePage::updateButtons);
-    inputButtonLayout->addWidget(deleteInputButton);
 
-    auto outputLayout = new QVBoxLayout();
+    outputLayout = new TestCaseChooseLayout("输出", "*.out *.ans", this);
     mainLayout->addLayout(outputLayout);
-    auto outputLabel = new QLabel("输出", this);
-    outputLayout->addWidget(outputLabel);
-    outputList = new ListWidget(this);
-    connect(outputList, &ListWidget::itemChanged, this, &QWizardPage::completeChanged);
-    outputLayout->addWidget(outputList);
-    auto outputButtonLayout = new QHBoxLayout();
-    outputLayout->addLayout(outputButtonLayout);
-    auto addOutputButton = new QPushButton("添加", this);
-    connect(addOutputButton, &QPushButton::clicked, this, &TestCaseChoosePage::addOutput);
-    outputButtonLayout->addWidget(addOutputButton);
-    deleteOutputButton = new QPushButton("删除", this);
-    connect(deleteOutputButton, &QPushButton::clicked, outputList,
-            &ListWidget::deleteSelectedItems);
-    connect(outputList, &QListWidget::itemSelectionChanged, this,
-            &TestCaseChoosePage::updateButtons);
-    outputButtonLayout->addWidget(deleteOutputButton);
-
-    updateButtons();
 }
 
 bool TestCaseChoosePage::isComplete() const
 {
-    return inputList->count() && inputList->count() == outputList->count();
+    return inputLayout->list->count() && inputLayout->list->count() == outputLayout->list->count();
 }
 
 QStringList TestCaseChoosePage::inputs() const
 {
-    return inputList->itemLabels();
+    return inputLayout->list->itemLabels();
 }
 
 QStringList TestCaseChoosePage::outputs() const
 {
-    return outputList->itemLabels();
-}
-
-void TestCaseChoosePage::addInput()
-{
-    for (auto path : QFileDialog::getOpenFileNames(this, "添加输入文件", QString(),
-                                                   "Input files (*.in);;Any files (*)"))
-        inputList->addItem(path);
-}
-
-void TestCaseChoosePage::addOutput()
-{
-    for (auto path : QFileDialog::getOpenFileNames(this, "添加输出文件", QString(),
-                                                   "Output files (*.out *.ans);;Any files (*)"))
-        outputList->addItem(path);
-}
-
-void TestCaseChoosePage::updateButtons()
-{
-    deleteInputButton->setDisabled(inputList->selectedItems().isEmpty());
-    deleteOutputButton->setDisabled(outputList->selectedItems().isEmpty());
+    return outputLayout->list->itemLabels();
 }
