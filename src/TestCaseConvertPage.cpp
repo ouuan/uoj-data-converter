@@ -12,6 +12,7 @@
 #include <QVBoxLayout>
 #include <algorithm>
 
+#include "ErrorLabel.hpp"
 #include "TestCaseChoosePage.hpp"
 
 TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage, QWidget *parent)
@@ -60,9 +61,7 @@ TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage,
 
     lineEditLayout->addStretch();
 
-    errorLabel = new QLabel(this);
-    errorLabel->setWordWrap(true);
-    errorLabel->setStyleSheet("QLabel { color: red }");
+    errorLabel = new ErrorLabel(this);
     mainLayout->addWidget(errorLabel);
 
     table = new QTableWidget(this);
@@ -142,7 +141,8 @@ QVector<QVector<TestCaseConvertPage::TestCase>> TestCaseConvertPage::getTestCase
 
 void TestCaseConvertPage::updateResult()
 {
-    showError(QString());
+    errorLabel->hide();
+
     QStringList pairedOutputs;
 
     while (!inputPatternEdit->text().isEmpty() || !outputPatternEdit->text().isEmpty())
@@ -150,7 +150,7 @@ void TestCaseConvertPage::updateResult()
         QRegularExpression inputRegex(QString("^%1$").arg(inputPatternEdit->text()));
         if (!inputRegex.isValid())
         {
-            showError(
+            errorLabel->showError(
                 QString("输入模式 [%1] 不是合法的正则表达式。").arg(inputPatternEdit->text()));
             break;
         }
@@ -161,9 +161,9 @@ void TestCaseConvertPage::updateResult()
 
             if (!inputRegex.match(input).hasMatch())
             {
-                showError(QString("输入模式 [%1] 与输入文件名 [%2] 不匹配。")
-                              .arg(inputPatternEdit->text())
-                              .arg(input));
+                errorLabel->showError(QString("输入模式 [%1] 与输入文件名 [%2] 不匹配。")
+                                          .arg(inputPatternEdit->text())
+                                          .arg(input));
                 break;
             }
 
@@ -182,17 +182,19 @@ void TestCaseConvertPage::updateResult()
 
             if (find(outputs, output) == -1)
             {
-                showError(QString("输入文件名 [%1] 对应的输出 [%2] 不在输入文件名列表中。")
-                              .arg(input)
-                              .arg(output));
+                errorLabel->showError(
+                    QString("输入文件名 [%1] 对应的输出 [%2] 不在输入文件名列表中。")
+                        .arg(input)
+                        .arg(output));
                 break;
             }
             if (find(pairedOutputs, output) != -1)
             {
-                showError(QString("输入 [%1] 和输入 [%2] 对应的输出文件名相同，都是 [%3]。")
-                              .arg(input)
-                              .arg(QFileInfo(inputs[find(pairedOutputs, output)]).fileName())
-                              .arg(output));
+                errorLabel->showError(
+                    QString("输入 [%1] 和输入 [%2] 对应的输出文件名相同，都是 [%3]。")
+                        .arg(input)
+                        .arg(QFileInfo(inputs[find(pairedOutputs, output)]).fileName())
+                        .arg(output));
                 break;
             }
 
@@ -259,18 +261,4 @@ void TestCaseConvertPage::setSubtask()
 void TestCaseConvertPage::updateSubtaskButton()
 {
     subtaskButton->setDisabled(table->selectedItems().isEmpty());
-}
-
-void TestCaseConvertPage::showError(const QString &error)
-{
-    if (error.isEmpty())
-    {
-        errorLabel->clear();
-        errorLabel->hide();
-    }
-    else
-    {
-        errorLabel->setText(error);
-        errorLabel->show();
-    }
 }

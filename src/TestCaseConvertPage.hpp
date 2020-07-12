@@ -2,7 +2,7 @@
 
 #include <QWizardPage>
 
-class QLabel;
+class ErrorLabel;
 class QLineEdit;
 class QPushButton;
 class QTableWidget;
@@ -40,14 +40,11 @@ class TestCaseConvertPage : public QWizardPage
     void updateSubtaskButton();
 
    private:
-    void showError(const QString &error);
-
-   private:
     TestCaseChoosePage *choosePage = nullptr;
     QLineEdit *problemNameEdit = nullptr;
     QLineEdit *inputPatternEdit = nullptr;
     QLineEdit *outputPatternEdit = nullptr;
-    QLabel *errorLabel = nullptr;
+    ErrorLabel *errorLabel = nullptr;
     QTableWidget *table = nullptr;
     QPushButton *subtaskButton = nullptr;
 

@@ -57,10 +57,16 @@ add_executable(uoj-data-converter
   
   src/MainWindow.hpp
   src/MainWindow.cpp
+
   src/TestCaseChoosePage.hpp
   src/TestCaseChoosePage.cpp
   src/TestCaseConvertPage.hpp
   src/TestCaseConvertPage.cpp
+  src/SubtaskPage.hpp
+  src/SubtaskPage.cpp
+
+  src/ErrorLabel.hpp
+  src/ErrorLabel.cpp
 )
 
 include_directories("generated/")
