@@ -59,6 +59,8 @@ add_executable(uoj-data-converter
   src/MainWindow.cpp
   src/TestCaseChoosePage.hpp
   src/TestCaseChoosePage.cpp
+  src/TestCaseConvertPage.hpp
+  src/TestCaseConvertPage.cpp
 )
 
 include_directories("generated/")
@@ -69,14 +71,15 @@ endif(MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(uoj-data-converter PRIVATE
-		-ansi
-		-pedantic
-		-Wall
-		-Wextra
-		-Woverloaded-virtual
-		-Winit-self
-		-Wunreachable-code
-	)
+    -ansi
+    -pedantic
+    -Wall
+    -Wextra
+    -Wshadow
+    -Woverloaded-virtual
+    -Winit-self
+    -Wunreachable-code
+  )
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 target_link_libraries(uoj-data-converter PRIVATE Qt5::Widgets)

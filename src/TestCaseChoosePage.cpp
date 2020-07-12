@@ -63,6 +63,7 @@ void ListWidget::deleteSelectedItems()
 {
     for (auto item : selectedItems())
         delete item;
+    emit itemChanged();
 }
 
 QStringList ListWidget::itemLabels() const
@@ -104,6 +105,7 @@ TestCaseChoosePage::TestCaseChoosePage(QWidget *parent) : QWizardPage(parent)
     auto outputLabel = new QLabel("输出", this);
     outputLayout->addWidget(outputLabel);
     outputList = new ListWidget(this);
+    connect(outputList, &ListWidget::itemChanged, this, &QWizardPage::completeChanged);
     outputLayout->addWidget(outputList);
     auto outputButtonLayout = new QHBoxLayout();
     outputLayout->addLayout(outputButtonLayout);
@@ -137,13 +139,15 @@ QStringList TestCaseChoosePage::outputs() const
 
 void TestCaseChoosePage::addInput()
 {
-    for (auto path : QFileDialog::getOpenFileNames(this, "添加输入文件"))
+    for (auto path : QFileDialog::getOpenFileNames(this, "添加输入文件", QString(),
+                                                   "Input files (*.in);;Any files (*)"))
         inputList->addItem(path);
 }
 
 void TestCaseChoosePage::addOutput()
 {
-    for (auto path : QFileDialog::getOpenFileNames(this, "添加输出文件"))
+    for (auto path : QFileDialog::getOpenFileNames(this, "添加输出文件", QString(),
+                                                   "Output files (*.out *.ans);;Any files (*)"))
         outputList->addItem(path);
 }
 

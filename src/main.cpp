@@ -2,7 +2,6 @@
 #include <QCommandLineParser>
 
 #include "MainWindow.hpp"
-#include "TestCaseChoosePage.hpp"
 #include "generated/version.hpp"
 
 int main(int argc, char *argv[])

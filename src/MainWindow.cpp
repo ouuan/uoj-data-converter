@@ -7,7 +7,10 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QWizard>
 
+#include "TestCaseChoosePage.hpp"
+#include "TestCaseConvertPage.hpp"
 #include "generated/version.hpp"
 
 MainWindow::MainWindow()
@@ -66,4 +69,15 @@ void MainWindow::showAbout()
 }
 
 void MainWindow::startGuide()
-{}
+{
+    QWizard guide(this);
+
+    auto testCaseChoosePage = new TestCaseChoosePage(&guide);
+    auto testCaseConvertPage = new TestCaseConvertPage(testCaseChoosePage, &guide);
+
+    guide.addPage(testCaseChoosePage);
+    guide.addPage(testCaseConvertPage);
+    guide.setWindowTitle("数据转换向导");
+
+    guide.exec();
+}
