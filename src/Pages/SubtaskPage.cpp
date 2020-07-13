@@ -10,6 +10,8 @@
 SubtaskPage::SubtaskPage(TestCaseConvertPage *testCaseConvertPage, QWidget *parent)
     : QWizardPage(parent), convertPage(testCaseConvertPage)
 {
+    setTitle("子任务设置");
+
     Q_ASSERT(convertPage != nullptr);
 
     auto mainLayout = new QVBoxLayout(this);
