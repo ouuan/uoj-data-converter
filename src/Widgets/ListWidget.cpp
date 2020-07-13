@@ -14,39 +14,6 @@ ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
 
-void ListWidget::dragEnterEvent(QDragEnterEvent *event)
-{
-    if (event->mimeData()->hasUrls())
-    {
-        event->accept();
-        event->acceptProposedAction();
-    }
-}
-
-void ListWidget::dragMoveEvent(QDragMoveEvent *event)
-{
-    if (event->mimeData()->hasUrls())
-    {
-        event->accept();
-        event->acceptProposedAction();
-    }
-}
-
-void ListWidget::dropEvent(QDropEvent *event)
-{
-    const auto urls = event->mimeData()->urls();
-    if (!urls.isEmpty())
-    {
-        for (auto url : urls)
-        {
-            const auto path = url.toLocalFile();
-            if (QFileInfo(path).isFile() && !itemLabels().contains(path))
-                addItem(url.toLocalFile());
-        }
-        event->acceptProposedAction();
-    }
-}
-
 void ListWidget::addItem(const QString &title)
 {
     QListWidget::addItem(title);
@@ -80,6 +47,39 @@ void ListWidget::naturalSort()
     addItems(labels);
 
     emit itemChanged();
+}
+
+void ListWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls())
+    {
+        event->accept();
+        event->acceptProposedAction();
+    }
+}
+
+void ListWidget::dragMoveEvent(QDragMoveEvent *event)
+{
+    if (event->mimeData()->hasUrls())
+    {
+        event->accept();
+        event->acceptProposedAction();
+    }
+}
+
+void ListWidget::dropEvent(QDropEvent *event)
+{
+    const auto urls = event->mimeData()->urls();
+    if (!urls.isEmpty())
+    {
+        for (auto url : urls)
+        {
+            const auto path = url.toLocalFile();
+            if (QFileInfo(path).isFile() && !itemLabels().contains(path))
+                addItem(url.toLocalFile());
+        }
+        event->acceptProposedAction();
+    }
 }
 
 QStringList ListWidget::itemLabels() const

@@ -9,12 +9,6 @@ class ListWidget : public QListWidget
    public:
     explicit ListWidget(QWidget *parent = nullptr);
 
-    void dragEnterEvent(QDragEnterEvent *event) override;
-
-    void dragMoveEvent(QDragMoveEvent *event) override;
-
-    void dropEvent(QDropEvent *event) override;
-
     void addItem(const QString &label);
 
     QStringList itemLabels() const;
@@ -23,6 +17,13 @@ class ListWidget : public QListWidget
     void deleteSelectedItems();
 
     void naturalSort();
+
+   protected:
+    void dragEnterEvent(QDragEnterEvent *event) override;
+
+    void dragMoveEvent(QDragMoveEvent *event) override;
+
+    void dropEvent(QDropEvent *event) override;
 
    signals:
     void itemChanged();

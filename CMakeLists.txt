@@ -64,11 +64,15 @@ add_executable(uoj-data-converter
   src/Pages/TestCaseConvertPage.cpp
   src/Pages/SubtaskPage.hpp
   src/Pages/SubtaskPage.cpp
+  src/Pages/ExamplePage.hpp
+  src/Pages/ExamplePage.cpp
 
   src/Widgets/ErrorLabel.hpp
   src/Widgets/ErrorLabel.cpp
   src/Widgets/ListWidget.hpp
   src/Widgets/ListWidget.cpp
+  src/Widgets/AcceptsDropEdit.hpp
+  src/Widgets/AcceptsDropEdit.cpp
 )
 
 include_directories("generated/")
