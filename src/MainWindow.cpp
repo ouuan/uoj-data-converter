@@ -9,9 +9,9 @@
 #include <QVBoxLayout>
 #include <QWizard>
 
-#include "SubtaskPage.hpp"
-#include "TestCaseChoosePage.hpp"
-#include "TestCaseConvertPage.hpp"
+#include "Pages/SubtaskPage.hpp"
+#include "Pages/TestCaseChoosePage.hpp"
+#include "Pages/TestCaseConvertPage.hpp"
 #include "generated/version.hpp"
 
 MainWindow::MainWindow()

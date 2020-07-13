@@ -10,8 +10,8 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 
-#include "ErrorLabel.hpp"
 #include "TestCaseChoosePage.hpp"
+#include "Widgets/ErrorLabel.hpp"
 
 TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage, QWidget *parent)
     : QWizardPage(parent), choosePage(testCaseChoosePage)

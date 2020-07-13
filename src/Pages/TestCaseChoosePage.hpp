@@ -1,41 +1,15 @@
 #pragma once
 
-#include <QListWidget>
 #include <QVBoxLayout>
 #include <QWizardPage>
 
+class ListWidget;
 class QPushButton;
 
 class TestCaseChoosePage;
 
 namespace TestCaseChoose
 {
-class ListWidget : public QListWidget
-{
-    Q_OBJECT
-
-   public:
-    explicit ListWidget(QWidget *parent = nullptr);
-
-    void dragEnterEvent(QDragEnterEvent *event) override;
-
-    void dragMoveEvent(QDragMoveEvent *event) override;
-
-    void dropEvent(QDropEvent *event) override;
-
-    void addItem(const QString &label);
-
-    QStringList itemLabels() const;
-
-   public slots:
-    void deleteSelectedItems();
-
-    void naturalSort();
-
-   signals:
-    void itemChanged();
-};
-
 class TestCaseChooseLayout : public QVBoxLayout
 {
     Q_OBJECT

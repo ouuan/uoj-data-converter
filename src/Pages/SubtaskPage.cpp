@@ -5,8 +5,8 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 
-#include "ErrorLabel.hpp"
 #include "TestCaseConvertPage.hpp"
+#include "Widgets/ErrorLabel.hpp"
 
 SubtaskPage::SubtaskPage(TestCaseConvertPage *testCaseConvertPage, QWidget *parent)
     : QWizardPage(parent), convertPage(testCaseConvertPage)
