@@ -28,8 +28,7 @@ TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage,
     lineEditLayout->addStretch();
 
     auto problemNameLabel = new QLabel("题目名称", this);
-    problemNameLabel->setToolTip(
-        "转换后文件名的前缀，若输入和输出文件的顺序都是正确的则不需要填写");
+    problemNameLabel->setToolTip("转换后文件名的前缀");
     lineEditLayout->addWidget(problemNameLabel);
 
     problemNameEdit = new QLineEdit(this);
@@ -51,7 +50,9 @@ TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage,
     lineEditLayout->addStretch();
 
     auto outputPatternLabel = new QLabel("输出模式", this);
-    outputPatternLabel->setToolTip("输出文件名的模式，可以用 \"\\1\" 表示输入正则的第一个捕获组");
+    outputPatternLabel->setToolTip(
+        "输出文件名的模式，可以用 \"\\1\" "
+        "表示输入正则的第一个捕获组，若输入和输出文件的顺序都是正确的则不需要填写");
     lineEditLayout->addWidget(outputPatternLabel);
 
     outputPatternEdit = new QLineEdit(this);
