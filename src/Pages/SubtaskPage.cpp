@@ -1,6 +1,5 @@
 #include "SubtaskPage.hpp"
 
-#include <QDebug>
 #include <QHeaderView>
 #include <QTableWidget>
 #include <QVBoxLayout>
@@ -121,6 +120,21 @@ void SubtaskPage::updateSubtasks()
                 ERR(QString("子任务 %1 的依赖 [%2] 出现了超过一次").arg(i + 1).arg(dependId));
             }
             subtasks[i].dependency.push_back(dependId);
+        }
+
+        for (auto x : subtasks[i].dependency)
+        {
+            for (auto y : subtasks[x - 1].dependency)
+            {
+                if (!subtasks[i].dependency.contains(y))
+                {
+                    ERR(QString("子任务 %1 依赖 [%2] 而不依赖 [%3]，但 UOJ "
+                                "的子任务依赖是不具有传递性的")
+                            .arg(i + 1)
+                            .arg(x)
+                            .arg(y));
+                }
+            }
         }
     }
 
