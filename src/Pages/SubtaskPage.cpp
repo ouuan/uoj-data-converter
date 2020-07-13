@@ -24,6 +24,10 @@ SubtaskPage::SubtaskPage(TestCaseConvertPage *testCaseConvertPage, QWidget *pare
                            QAbstractItemView::AnyKeyPressed);
     table->setColumnCount(3);
     table->setHorizontalHeaderLabels({"测试点范围", "分数", "依赖"});
+    table->horizontalHeaderItem(1)->setToolTip(
+        "子任务的总分。每个子任务的分数都需要是一个非负整数，总和需要是 100。");
+    table->horizontalHeaderItem(2)->setToolTip(
+        "一个子任务所依赖的子任务，是一个用逗号隔开的列表。");
 }
 
 void SubtaskPage::initializePage()
