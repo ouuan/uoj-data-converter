@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 #include <QWizard>
 
+#include "Pages/CommitOperationPage.hpp"
 #include "Pages/ExamplePage.hpp"
 #include "Pages/ProblemConfPage.hpp"
 #include "Pages/SubtaskPage.hpp"
@@ -81,12 +82,14 @@ void MainWindow::startGuide()
     auto examplePage = new ExamplePage(&guide);
     auto problemConfPage =
         new ProblemConfPage(testCaseConvertPage, subtaskPage, examplePage, &guide);
+    auto commitOperationPage = new CommitOperationPage(problemConfPage, &guide);
 
     guide.addPage(testCaseChoosePage);
     guide.addPage(testCaseConvertPage);
     guide.addPage(subtaskPage);
     guide.addPage(examplePage);
     guide.addPage(problemConfPage);
+    guide.addPage(commitOperationPage);
     guide.setWindowTitle("数据转换向导");
 
     guide.exec();

@@ -15,6 +15,10 @@ ProblemConfPage::ProblemConfPage(TestCaseConvertPage *testCaseConvertPage, Subta
       m_subtaskPage(subtaskPage),
       m_examplePage(examplePage)
 {
+    Q_ASSERT(testCaseConvertPage != nullptr);
+    Q_ASSERT(subtaskPage != nullptr);
+    Q_ASSERT(examplePage != nullptr);
+
     setTitle("生成 problem.conf");
 
     auto mainLayout = new QVBoxLayout(this);
@@ -73,9 +77,9 @@ void ProblemConfPage::initializePage()
     updateProblemConf();
 }
 
-QString ProblemConfPage::getProblemConf() const
+ProblemConfPage::Problem ProblemConfPage::getProblem() const
 {
-    return problemConfEdit->toPlainText();
+    return {name, testCases, subtasks, examples, problemConfEdit->toPlainText()};
 }
 
 void ProblemConfPage::updateProblemConf()

@@ -15,12 +15,21 @@ class ProblemConfPage : public QWizardPage
     Q_OBJECT
 
    public:
+    struct Problem
+    {
+        QString name;
+        QVector<QVector<TestCaseConvertPage::TestCase>> testCases;
+        QVector<SubtaskPage::Subtask> subtasks;
+        QVector<ExamplePage::Example> examples;
+        QString problemConf;
+    };
+
     explicit ProblemConfPage(TestCaseConvertPage *testCaseConvertPage, SubtaskPage *subtaskPage,
                              ExamplePage *examplePage, QWidget *parent = nullptr);
 
     void initializePage() override;
 
-    QString getProblemConf() const;
+    Problem getProblem() const;
 
    private slots:
     void updateProblemConf();
