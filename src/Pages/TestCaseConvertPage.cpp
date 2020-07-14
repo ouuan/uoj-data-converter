@@ -32,7 +32,7 @@ TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage,
     lineEditLayout->addWidget(problemNameLabel);
 
     problemNameEdit = new QLineEdit(this);
-    connect(problemNameEdit, &QLineEdit::editingFinished, this, &TestCaseConvertPage::updateResult);
+    connect(problemNameEdit, &QLineEdit::textChanged, this, &TestCaseConvertPage::updateResult);
     lineEditLayout->addWidget(problemNameEdit);
 
     lineEditLayout->addStretch();
@@ -43,8 +43,7 @@ TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage,
     lineEditLayout->addWidget(inputPatternLabel);
 
     inputPatternEdit = new QLineEdit(this);
-    connect(inputPatternEdit, &QLineEdit::editingFinished, this,
-            &TestCaseConvertPage::updateResult);
+    connect(inputPatternEdit, &QLineEdit::textChanged, this, &TestCaseConvertPage::updateResult);
     lineEditLayout->addWidget(inputPatternEdit);
 
     lineEditLayout->addStretch();
@@ -56,8 +55,7 @@ TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage,
     lineEditLayout->addWidget(outputPatternLabel);
 
     outputPatternEdit = new QLineEdit(this);
-    connect(outputPatternEdit, &QLineEdit::editingFinished, this,
-            &TestCaseConvertPage::updateResult);
+    connect(outputPatternEdit, &QLineEdit::textChanged, this, &TestCaseConvertPage::updateResult);
     lineEditLayout->addWidget(outputPatternEdit);
 
     lineEditLayout->addStretch();
@@ -117,6 +115,11 @@ void TestCaseConvertPage::initializePage()
     updateResult();
 }
 
+bool TestCaseConvertPage::isComplete() const
+{
+    return errorLabel->isHidden();
+}
+
 int TestCaseConvertPage::nextId() const
 {
     return QWizardPage::nextId() + (testCases.size() == 1);
@@ -135,6 +138,11 @@ QVector<QVector<TestCaseConvertPage::TestCase>> TestCaseConvertPage::getTestCase
 void TestCaseConvertPage::updateResult()
 {
     errorLabel->hide();
+
+    if (problemNameEdit->text().trimmed().isEmpty())
+        errorLabel->showError("题目名称为空");
+    else if (problemNameEdit->text().contains(QRegularExpression("\\s")))
+        errorLabel->showError("题目名称包含空白字符");
 
     QStringList pairedOutputs;
 
@@ -228,6 +236,8 @@ void TestCaseConvertPage::updateResult()
         setText(3, testCase.convertedOutput);
         setText(4, QString::number(testCases.count()));
     }
+
+    emit completeChanged();
 }
 
 void TestCaseConvertPage::setSubtask()

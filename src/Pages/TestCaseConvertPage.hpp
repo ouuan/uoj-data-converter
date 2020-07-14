@@ -26,6 +26,8 @@ class TestCaseConvertPage : public QWizardPage
 
     void initializePage() override;
 
+    bool isComplete() const override;
+
     int nextId() const override;
 
     QString getProblemName() const;
