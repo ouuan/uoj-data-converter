@@ -70,7 +70,7 @@ jobs:
           wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt*.AppImage
           export VERSION=${{ steps.get_version.outputs.VERSION }}
-          cp uoj-data-converter.desktop default.desktop
+          cp ../.ci/linux/uoj-data-converter.desktop default.desktop && cp ../.ci/linux/icon.png .
           ./linuxdeployqt*.AppImage ./uoj-data-converter -appimage -qmake=/opt/qt512/bin/qmake
           mv UOJ_Data_Converter-${{steps.get_version.outputs.VERSION }}-x86_64.AppImage uoj-data-converter-${{ steps.get_version.outputs.VERSION }}-linux-x86_64.AppImage
 
@@ -109,7 +109,7 @@ jobs:
         with:
           draft: true
           prerelease: true
-          files: uoj-data-converter-${{ steps.get_version.outputs.VERSION }}-windows-x64-setup
+          files: uoj-data-converter-${{ steps.get_version.outputs.VERSION }}-windows-x64-setup.exe
           name: UOJ Data Converter ${{ steps.get_version.outputs.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

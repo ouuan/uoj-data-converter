@@ -27,7 +27,7 @@ LicenseFile={#MyProjectRoot}\LICENSE
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir={#MyProjectRoot}
 OutputBaseFilename=uoj-data-converter-{#MyAppVersion}-windows-x64-setup
-SetupIconFile={#MyProjectRoot}\resources\icon.png
+SetupIconFile={#MyProjectRoot}\.ci\win\icon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -41,7 +41,6 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Files]
 Source: "{#MyOutRoot}\uoj-data-converter.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#MyOutRoot}\bearer\*"; DestDir: "{app}\bearer\"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyOutRoot}\iconengines\*"; DestDir: "{app}\iconengines\"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyOutRoot}\imageformats\*"; DestDir: "{app}\imageformats\"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MyOutRoot}\platforms\*"; DestDir: "{app}\platforms\"; Flags: ignoreversion recursesubdirs createallsubdirs
