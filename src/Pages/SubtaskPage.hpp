@@ -23,6 +23,8 @@ class SubtaskPage : public QWizardPage
 
     void initializePage() override;
 
+    void cleanupPage() override;
+
     bool isComplete() const override;
 
     QVector<Subtask> getSubtasks() const;

@@ -62,6 +62,11 @@ void SubtaskPage::initializePage()
         connect(table, &QTableWidget::itemChanged, this, &SubtaskPage::updateSubtasks);
 }
 
+void SubtaskPage::cleanupPage()
+{
+    subtasks.clear();
+}
+
 bool SubtaskPage::isComplete() const
 {
     return valid;

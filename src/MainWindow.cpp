@@ -10,6 +10,7 @@
 #include <QWizard>
 
 #include "Pages/ExamplePage.hpp"
+#include "Pages/ProblemConfPage.hpp"
 #include "Pages/SubtaskPage.hpp"
 #include "Pages/TestCaseChoosePage.hpp"
 #include "Pages/TestCaseConvertPage.hpp"
@@ -78,11 +79,14 @@ void MainWindow::startGuide()
     auto testCaseConvertPage = new TestCaseConvertPage(testCaseChoosePage, &guide);
     auto subtaskPage = new SubtaskPage(testCaseConvertPage, &guide);
     auto examplePage = new ExamplePage(&guide);
+    auto problemConfPage =
+        new ProblemConfPage(testCaseConvertPage, subtaskPage, examplePage, &guide);
 
     guide.addPage(testCaseChoosePage);
     guide.addPage(testCaseConvertPage);
     guide.addPage(subtaskPage);
     guide.addPage(examplePage);
+    guide.addPage(problemConfPage);
     guide.setWindowTitle("数据转换向导");
 
     guide.exec();
