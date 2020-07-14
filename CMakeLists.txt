@@ -81,6 +81,8 @@ add_executable(uoj-data-converter
   src/Widgets/ListWidget.cpp
   src/Widgets/AcceptsDropEdit.hpp
   src/Widgets/AcceptsDropEdit.cpp
+
+  resources/resources.qrc
 )
 
 include_directories("generated/")
