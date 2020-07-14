@@ -114,3 +114,11 @@ if(APPLE)
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/cmake/Info.plist.in
   )
 endif()
+
+if(UNIX AND NOT APPLE)
+  install(TARGETS uoj-data-converter
+          RUNTIME DESTINATION bin
+          LIBRARY DESTINATION lib)
+  install(FILES .ci/linux/uoj-data-converter.desktop DESTINATION share/applications)
+  install(FILES .ci/linux/icon.png DESTINATION share/icons)
+endif()

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=UOJ Data Converter
+Comment=将各种各样格式的数据转换为 UOJ 的格式。
+Exec=uoj-data-converter
+Icon=icon
+Categories=Utility;
