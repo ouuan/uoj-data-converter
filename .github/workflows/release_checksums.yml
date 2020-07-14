@@ -29,7 +29,7 @@ jobs:
       - name: Upload checksums
         uses: softprops/action-gh-release@v1
         with:
-          prerelease: ${{ steps.get_version.outputs.ISBETA }}
+          prerelease: true
           name: UOJ Data Converter ${{ steps.get_version.outputs.VERSION }}
           files: downloads/uoj-data-converter-${{ steps.get_version.outputs.VERSION }}-sha256-checksums.txt
         env:
