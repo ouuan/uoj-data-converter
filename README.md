@@ -10,6 +10,13 @@
 -   自动生成 problem.conf。
 -   跨平台。
 
+## 下载安装
+
+1.  在 [Releases](https://github.com/ouuan/uoj-data-converter) 中下载。
+2.  Windows 下安装后使用，Linux 下直接运行（可能需要 `chmod +x uoj-data-converter*.AppImage`）。
+
+暂不提供 macOS 的可执行文件，需要的话可以自行构建。
+
 ## 构建
 
 1.  安装 [Qt](https://www.qt.io/download) 和 [CMake](https://cmake.org/download/)。
