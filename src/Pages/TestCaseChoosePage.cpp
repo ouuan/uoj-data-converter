@@ -43,7 +43,7 @@ void TestCaseChooseLayout::addTestCase()
     for (auto path : paths)
     {
         if (!list->itemLabels().contains(path))
-            list->addItem(path);
+            list->addPath(path);
     }
 }
 

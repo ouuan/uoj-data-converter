@@ -9,7 +9,7 @@ class ListWidget : public QListWidget
    public:
     explicit ListWidget(QWidget *parent = nullptr);
 
-    void addItem(const QString &label);
+    void addPath(const QString &path);
 
     QStringList itemLabels() const;
 

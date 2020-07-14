@@ -14,9 +14,9 @@ ListWidget::ListWidget(QWidget *parent) : QListWidget(parent)
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
 
-void ListWidget::addItem(const QString &title)
+void ListWidget::addPath(const QString &path)
 {
-    QListWidget::addItem(title);
+    addItem(QFileInfo(path).canonicalFilePath());
     emit itemChanged();
 }
 
@@ -76,7 +76,7 @@ void ListWidget::dropEvent(QDropEvent *event)
         {
             const auto path = url.toLocalFile();
             if (QFileInfo(path).isFile() && !itemLabels().contains(path))
-                addItem(url.toLocalFile());
+                addPath(url.toLocalFile());
         }
         event->acceptProposedAction();
     }
