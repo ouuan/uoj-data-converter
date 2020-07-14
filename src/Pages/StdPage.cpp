@@ -4,6 +4,7 @@
 #include <QCheckBox>
 #include <QFile>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -56,7 +57,7 @@ QString StdPage::getStd() const
 
 bool StdPage::isComplete() const
 {
-    if (pathEdit->text().trimmed().isEmpty() || QFile(pathEdit->text()).isReadable())
+    if (pathEdit->text().trimmed().isEmpty() || QFileInfo(pathEdit->text()).isReadable())
     {
         errorLabel->hide();
         return true;
