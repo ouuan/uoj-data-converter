@@ -11,6 +11,7 @@
 
 #include "Pages/CommitOperationPage.hpp"
 #include "Pages/ExamplePage.hpp"
+#include "Pages/FinishPage.hpp"
 #include "Pages/ProblemConfPage.hpp"
 #include "Pages/SubtaskPage.hpp"
 #include "Pages/TestCaseChoosePage.hpp"
@@ -83,6 +84,7 @@ void MainWindow::startGuide()
     auto problemConfPage =
         new ProblemConfPage(testCaseConvertPage, subtaskPage, examplePage, &guide);
     auto commitOperationPage = new CommitOperationPage(problemConfPage, &guide);
+    auto finishPage = new FinishPage(commitOperationPage, &guide);
 
     guide.addPage(testCaseChoosePage);
     guide.addPage(testCaseConvertPage);
@@ -90,6 +92,7 @@ void MainWindow::startGuide()
     guide.addPage(examplePage);
     guide.addPage(problemConfPage);
     guide.addPage(commitOperationPage);
+    guide.addPage(finishPage);
     guide.setWindowTitle("数据转换向导");
 
     guide.exec();

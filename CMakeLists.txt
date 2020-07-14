@@ -70,6 +70,8 @@ add_executable(uoj-data-converter
   src/Pages/ProblemConfPage.cpp
   src/Pages/CommitOperationPage.hpp
   src/Pages/CommitOperationPage.cpp
+  src/Pages/FinishPage.hpp
+  src/Pages/FinishPage.cpp
 
   src/Widgets/ErrorLabel.hpp
   src/Widgets/ErrorLabel.cpp
