@@ -1,0 +1,115 @@
+name: "Release"
+
+on:
+  push:
+    tags:
+      - "*"
+
+env:
+  QT_VERSION: 5.12.9
+
+jobs:
+  release:
+    name: "release on ${{ matrix.os }}"
+    runs-on: "${{ matrix.os }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-16.04", "windows-latest"]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Install Qt on Ubuntu
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo add-apt-repository ppa:beineri/opt-qt-${QT_VERSION}-xenial -y
+          sudo apt-get update -qq
+          sudo apt-get -y install qt512base libgl1-mesa-dev qt512svg qt512imageformats
+          bash /opt/qt*/bin/qt*-env.sh
+
+      - name: Restore Qt from cache on Windows
+        if: startsWith(matrix.os, 'windows')
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: Qt-${{ matrix.os }}-${{ env.QT_VERSION }}
+
+      - name: Set up Qt environment on Windows
+        if: startsWith(matrix.os, 'windows')
+        uses: jurplel/install-qt-action@v2
+        with:
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          version: ${{ env.QT_VERSION }}
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release -j2
+
+      - name: Get the version
+        id: get_version
+        shell: bash
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Pack to AppImage
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          bash /opt/qt*/bin/qt*-env.sh
+          cd build
+          wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+          chmod a+x linuxdeployqt*.AppImage
+          export VERSION=${{ steps.get_version.outputs.VERSION }}
+          cp uoj-data-converter.desktop default.desktop
+          ./linuxdeployqt*.AppImage ./uoj-data-converter -appimage -qmake=/opt/qt512/bin/qmake
+          mv UOJ_Data_Converter-${{steps.get_version.outputs.VERSION }}-x86_64.AppImage uoj-data-converter-${{ steps.get_version.outputs.VERSION }}-linux-x86_64.AppImage
+
+      - name: Release AppImage
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: true
+          files: build/uoj-data-converter-${{ steps.get_version.outputs.VERSION }}-linux-x86_64.AppImage
+          name: UOJ Data Converter ${{ steps.get_version.outputs.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Gather dependencies on Windows
+        if: startsWith(matrix.os, 'windows')
+        shell: bash
+        run: |
+          mkdir build/out
+          mv build/Release/uoj-data-converter.exe build/out
+          ../Qt/*/*/bin/windeployqt.exe build/out/uoj-data-converter.exe --no-translations
+          cd "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Redist/MSVC"
+          echo ::set-env name=VC_REDIST_VERSION::$(ls -dr *.* | head -n1)
+
+      - name: Pack to installer on Windows
+        if: startsWith(matrix.os, 'windows')
+        shell: bash
+        run: |
+          mkdir build/out/Redist
+          cp "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Redist/MSVC/$VC_REDIST_VERSION/vc_redist.x64.exe" build/out/Redist
+          iscc .ci/win/win-setup.iss -DMyAppVersion=${{ steps.get_version.outputs.VERSION }} -DMyProjectRoot=$(pwd) -DMyOutRoot=$(pwd)/build/out -DVC_REDIST_VERSION=$VC_REDIST_VERSION
+
+      - name: Release on Windows
+        if: startsWith(matrix.os, 'windows')
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: true
+          files: uoj-data-converter-${{ steps.get_version.outputs.VERSION }}-windows-x64-setup
+          name: UOJ Data Converter ${{ steps.get_version.outputs.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
