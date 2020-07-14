@@ -53,6 +53,8 @@ endif()
 configure_file(cmake/version.hpp.in ${CMAKE_BINARY_DIR}/generated/version.hpp)
 
 add_executable(uoj-data-converter
+  ${GUI_TYPE}
+
   src/main.cpp
   
   src/MainWindow.hpp
