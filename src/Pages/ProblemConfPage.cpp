@@ -50,7 +50,7 @@ ProblemConfPage::ProblemConfPage(TestCaseConvertPage *testCaseConvertPage, Subta
     settingsLayout->addWidget(checkerLabel);
 
     checkerComboBox = new QComboBox(this);
-    checkerComboBox->addItems({"ncmp", "rcmp4", "rcmp6", "rcmp9", "wcmp", "nyesno"});
+    checkerComboBox->addItems({"ncmp", "rcmp4", "rcmp6", "rcmp9", "wcmp", "nyesno", "自定义"});
     checkerComboBox->setCurrentText("ncmp");
     settingsLayout->addWidget(checkerComboBox);
 
@@ -95,14 +95,15 @@ void ProblemConfPage::updateProblemConf()
                            "time_limit %4\n"
                            "memory_limit %5\n"
                            "output_limit 64\n"
-                           "use_builtin_judger on\n"
-                           "use_builtin_checker %6\n")
+                           "use_builtin_judger on\n")
                            .arg(testCases.back().back().id)
                            .arg(examples.count())
                            .arg(name)
                            .arg(timeLimitSpinBox->value())
-                           .arg(memoryLimitSpinBox->value())
-                           .arg(checkerComboBox->currentText());
+                           .arg(memoryLimitSpinBox->value());
+
+    if (checkerComboBox->currentText() != "自定义")
+        problemConf += QString("use_builtin_checker %6\n").arg(checkerComboBox->currentText());
 
     if (!subtasks.isEmpty())
     {

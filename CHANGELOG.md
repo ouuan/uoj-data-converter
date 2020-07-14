@@ -1,5 +1,9 @@
 ## Unreleased
 
+### 新功能
+
+-   problem.conf 设置页面可以选择自定义 checker。
+
 ## 0.1.0
 
 初始版本，有如下 feature：
