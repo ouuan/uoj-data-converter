@@ -2,6 +2,9 @@
 
 将各种各样格式的数据转换为 [UOJ](https://github.com/UniversalOJ/UOJ-System/) 的格式。
 
+[![Build Status](https://github.com/ouuan/uoj-data-converter/workflows/Build/badge.svg?branch=master)](https://github.com/ouuan/uoj-data-converter/actions?query=workflow%3ABuild+branch%3Amaster)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/069303dace1d445487962249b7b96407)](https://www.codacy.com/manual/ouuan/uoj-data-converter)
+
 ## Features
 
 -   将各种格式的文件名转换成 UOJ 格式（`<题目名><编号>.in/ans`）。
