@@ -44,6 +44,8 @@ ExamplePage::ExamplePage(QWidget *parent) : QWizardPage(parent)
     connect(stackedWidget, &QStackedWidget::currentChanged, this, &ExamplePage::updateDeleteButton);
     splitter->addWidget(stackedWidget);
 
+    updateDeleteButton();
+
     splitter->setSizes({1000000, 3000000});
 }
 
