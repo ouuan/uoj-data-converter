@@ -15,12 +15,15 @@
 #include <QVBoxLayout>
 
 #include "ProblemConfPage.hpp"
+#include "StdPage.hpp"
 #include "Widgets/ErrorLabel.hpp"
 
-CommitOperationPage::CommitOperationPage(ProblemConfPage *problemConfPage, QWidget *parent)
-    : QWizardPage(parent), m_problemConfPage(problemConfPage)
+CommitOperationPage::CommitOperationPage(ProblemConfPage *problemConfPage, StdPage *stdPage,
+                                         QWidget *parent)
+    : QWizardPage(parent), m_problemConfPage(problemConfPage), m_stdPage(stdPage)
 {
     Q_ASSERT(problemConfPage != nullptr);
+    Q_ASSERT(stdPage != nullptr);
 
     setTitle("应用操作");
     setCommitPage(true);
@@ -87,6 +90,7 @@ bool CommitOperationPage::validatePage()
     exists.push_back(x)
 
     CHECK_EXISTS("problem.conf");
+    CHECK_EXISTS("std.cpp");
 
     for (int i = 0; i < problem.testCases.back().back().id; ++i)
     {
@@ -192,45 +196,45 @@ bool CommitOperationPage::validatePage()
         }
     }
 
+#undef DELETE_IF_EXISTS
+
+    tempDir.remove();
+
+#define OVERWRITE(path, content)                                    \
+    QFile path##File(path);                                         \
+    if (!path##File.open(QIODevice::WriteOnly | QIODevice::Text) || \
+        path##File.write(content.toUtf8()) == -1)                   \
+    {                                                               \
+        ERR(QString("写入 [%1] 时失败").arg(path))                  \
+    }
+
     // 在输出路径写入样例
 
     for (int i = 0; i < problem.examples.count(); ++i)
     {
         const QString inputPath =
             outputDir.filePath(QString("ex_%1%2.in").arg(problem.name).arg(i + 1));
-        DELETE_IF_EXISTS(inputPath);
-        QFile inputFile(inputPath);
-        if (!inputFile.open(QIODevice::WriteOnly | QIODevice::Text) ||
-            inputFile.write(problem.examples[i].input.toUtf8()) == -1)
-        {
-            ERR(QString("写入 [%1] 时失败").arg(inputPath))
-        }
+        OVERWRITE(inputPath, problem.examples[i].input)
 
         const QString outputPath =
             outputDir.filePath(QString("ex_%1%2.ans").arg(problem.name).arg(i + 1));
-        DELETE_IF_EXISTS(outputPath);
-        QFile outputFile(outputPath);
-        if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text) ||
-            outputFile.write(problem.examples[i].output.toUtf8()) == -1)
-        {
-            ERR(QString("写入 [%1] 时失败").arg(outputPath))
-        }
+        OVERWRITE(outputPath, problem.examples[i].output)
     }
 
     // 在输出路径写入 problem.conf
 
     const QString problemConfPath = outputDir.filePath("problem.conf");
-    DELETE_IF_EXISTS(problemConfPath);
-    QFile problemConfFile(problemConfPath);
-    if (!problemConfFile.open(QIODevice::WriteOnly | QIODevice::Text) ||
-        problemConfFile.write(problem.problemConf.toUtf8()) == -1)
+    OVERWRITE(problemConfPath, problem.problemConf);
+
+    // 在输出路径中写入 std.cpp
+
+    const QString stdPath = outputDir.filePath("std.cpp");
+    const QString stdContent = m_stdPage->getStd();
+    if (!stdContent.isNull())
     {
-        ERR(QString("写入 [%1] 时失败").arg(problemConfPath))
+        OVERWRITE(stdPath, stdContent)
     }
 
-#undef DELETE_IF_EXISTS
-
-    tempDir.remove();
     return true;
 
 #undef ERR

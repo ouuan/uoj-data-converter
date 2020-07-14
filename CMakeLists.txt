@@ -70,6 +70,8 @@ add_executable(uoj-data-converter
   src/Pages/ExamplePage.cpp
   src/Pages/ProblemConfPage.hpp
   src/Pages/ProblemConfPage.cpp
+  src/Pages/StdPage.hpp
+  src/Pages/StdPage.cpp
   src/Pages/CommitOperationPage.hpp
   src/Pages/CommitOperationPage.cpp
   src/Pages/FinishPage.hpp
