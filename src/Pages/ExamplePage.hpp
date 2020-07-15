@@ -44,6 +44,27 @@ class ExamplePage : public QWizardPage
     QMap<ExampleEdits *, QListWidgetItem *> itemForExampleEdits;
 };
 
+class ExampleEdit : public QWidget
+{
+    Q_OBJECT
+
+   public:
+    explicit ExampleEdit(const QString &name, const QString &filter, QWidget *parent = nullptr);
+
+    QString getContent() const;
+
+   private slots:
+    void chooseFile();
+
+    void clearContent();
+
+   private:
+    AcceptsDropEdit *edit = nullptr;
+
+    QString m_name;
+    QString m_filter;
+};
+
 class ExampleEdits : public QWidget
 {
     Q_OBJECT
@@ -54,6 +75,6 @@ class ExampleEdits : public QWidget
     ExamplePage::Example getExample();
 
    private:
-    AcceptsDropEdit *inputEdit = nullptr;
-    AcceptsDropEdit *outputEdit = nullptr;
+    ExampleEdit *inputEdit = nullptr;
+    ExampleEdit *outputEdit = nullptr;
 };

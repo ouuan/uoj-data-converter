@@ -1,14 +1,19 @@
 #include "ExamplePage.hpp"
 
+#include <QFile>
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidget>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 
 #include "Widgets/AcceptsDropEdit.hpp"
+
+static const int MAX_DISPLAY_LENGTH = 10000;
 
 ExamplePage::ExamplePage(QWidget *parent) : QWizardPage(parent)
 {
@@ -97,26 +102,70 @@ void ExamplePage::updateDeleteButton()
     deleteButton->setDisabled(stackedWidget->count() == 0);
 }
 
+ExampleEdit::ExampleEdit(const QString &name, const QString &filter, QWidget *parent)
+    : QWidget(parent), m_name(name), m_filter(filter)
+{
+    auto mainLayout = new QVBoxLayout(this);
+
+    auto upLayout = new QHBoxLayout();
+    mainLayout->addLayout(upLayout);
+
+    auto label = new QLabel(name, this);
+    label->setToolTip(QString("样例的%1，可以手动输入也可以将文件拖入").arg(name));
+    upLayout->addWidget(label);
+
+    auto addButton = new QPushButton("选择文件", this);
+    connect(addButton, &QPushButton::clicked, this, &ExampleEdit::chooseFile);
+    upLayout->addWidget(addButton);
+
+    auto clearButton = new QPushButton("清空", this);
+    connect(clearButton, &QPushButton::clicked, this, &ExampleEdit::clearContent);
+    upLayout->addWidget(clearButton);
+
+    edit = new AcceptsDropEdit(MAX_DISPLAY_LENGTH, this);
+    mainLayout->addWidget(edit);
+}
+
+QString ExampleEdit::getContent() const
+{
+    return edit->getContent();
+}
+
+void ExampleEdit::chooseFile()
+{
+    auto path = QFileDialog::getOpenFileName(
+        this, QString("选择%1文件").arg(m_name), QString(),
+        QString("%1文件 (%2);;任何文件 (*)").arg(m_name).arg(m_filter));
+    if (!path.isEmpty())
+    {
+        QFile file(path);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+            edit->modifyText(file.readAll());
+    }
+}
+
+void ExampleEdit::clearContent()
+{
+    auto res = QMessageBox::question(this, QString("清空%1").arg(m_name),
+                                     QString("你确定要清空%1吗？").arg(m_name),
+                                     QMessageBox::Yes | QMessageBox::No);
+    if (res == QMessageBox::No)
+        return;
+    edit->modifyText(QString());
+}
+
 ExampleEdits::ExampleEdits(QWidget *parent) : QWidget(parent)
 {
     auto mainLayout = new QVBoxLayout(this);
 
-    auto inputLabel = new QLabel("输入", this);
-    inputLabel->setToolTip("样例的输入，可以手动输入也可以将文件拖入");
-    mainLayout->addWidget(inputLabel);
-
-    inputEdit = new AcceptsDropEdit(this);
+    inputEdit = new ExampleEdit("输入", "*.in", this);
     mainLayout->addWidget(inputEdit);
 
-    auto outputLabel = new QLabel("输出", this);
-    inputLabel->setToolTip("样例的输出，可以手动输入也可以将文件拖入");
-    mainLayout->addWidget(outputLabel);
-
-    outputEdit = new AcceptsDropEdit(this);
+    outputEdit = new ExampleEdit("输出", "*.out *.ans", this);
     mainLayout->addWidget(outputEdit);
 }
 
 ExamplePage::Example ExampleEdits::getExample()
 {
-    return {inputEdit->toPlainText(), outputEdit->toPlainText()};
+    return {inputEdit->getContent(), outputEdit->getContent()};
 }
