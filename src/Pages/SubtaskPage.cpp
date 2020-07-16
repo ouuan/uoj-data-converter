@@ -4,15 +4,21 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 
+#include "Models/ConvertedTestCaseModel.hpp"
+#include "Models/SubtaskModel.hpp"
 #include "TestCaseConvertPage.hpp"
 #include "Widgets/ErrorLabel.hpp"
 
-SubtaskPage::SubtaskPage(TestCaseConvertPage *testCaseConvertPage, QWidget *parent)
-    : QWizardPage(parent), convertPage(testCaseConvertPage)
+SubtaskPage::SubtaskPage(SubtaskModel *subtaskModel, ConvertedTestCaseModel *convertedTestCaseModel,
+                         QWidget *parent)
+    : QWizardPage(parent),
+      m_subtaskModel(subtaskModel),
+      m_convertedTestCaseModel(convertedTestCaseModel)
 {
-    setTitle("子任务设置");
+    Q_ASSERT(m_subtaskModel != nullptr);
+    Q_ASSERT(m_convertedTestCaseModel != nullptr);
 
-    Q_ASSERT(convertPage != nullptr);
+    setTitle("子任务设置");
 
     auto mainLayout = new QVBoxLayout(this);
 
@@ -34,22 +40,23 @@ SubtaskPage::SubtaskPage(TestCaseConvertPage *testCaseConvertPage, QWidget *pare
 
 void SubtaskPage::initializePage()
 {
-    subtasks.clear();
+    m_subtaskModel->m_subtasks.clear();
 
-    for (const auto &subtask : convertPage->getTestCases())
+    for (const auto &subtask : m_convertedTestCaseModel->testCases())
     {
-        subtasks.push_back({subtask.front().id, subtask.back().id, 0, {}});
+        m_subtaskModel->m_subtasks.push_back({subtask.front().id, subtask.back().id, 0, {}});
     }
 
     disconnect(updateConnection);
 
     table->clearContents();
-    table->setRowCount(subtasks.count());
+    table->setRowCount(m_subtaskModel->m_subtasks.count());
 
-    for (int i = 0; i < subtasks.count(); ++i)
+    for (int i = 0; i < m_subtaskModel->m_subtasks.count(); ++i)
     {
-        auto rangeItem =
-            new QTableWidgetItem(QString("%1-%2").arg(subtasks[i].start).arg(subtasks[i].end));
+        auto rangeItem = new QTableWidgetItem(QString("%1-%2")
+                                                  .arg(m_subtaskModel->m_subtasks[i].start)
+                                                  .arg(m_subtaskModel->m_subtasks[i].end));
         rangeItem->setFlags(rangeItem->flags() & ~Qt::ItemIsEditable);
         table->setItem(i, 0, rangeItem);
         table->setItem(i, 1, new QTableWidgetItem("0"));
@@ -64,17 +71,12 @@ void SubtaskPage::initializePage()
 
 void SubtaskPage::cleanupPage()
 {
-    subtasks.clear();
+    m_subtaskModel->m_subtasks.clear();
 }
 
 bool SubtaskPage::isComplete() const
 {
     return valid;
-}
-
-QVector<SubtaskPage::Subtask> SubtaskPage::getSubtasks() const
-{
-    return subtasks;
 }
 
 void SubtaskPage::updateSubtasks()
@@ -89,23 +91,23 @@ void SubtaskPage::updateSubtasks()
 
     long long sum = 0;
 
-    for (int i = 0; i < subtasks.count(); ++i)
+    for (int i = 0; i < m_subtaskModel->m_subtasks.count(); ++i)
     {
         bool success = false;
-        subtasks[i].score = table->item(i, 1)->text().toInt(&success);
+        m_subtaskModel->m_subtasks[i].score = table->item(i, 1)->text().toInt(&success);
         if (!success)
         {
             ERR(QString("子任务 %1 的分数 \"%2\" 不是一个合法的数字")
                     .arg(i + 1)
                     .arg(table->item(i, 1)->text()));
         }
-        if (subtasks[i].score < 0)
+        if (m_subtaskModel->m_subtasks[i].score < 0)
         {
             ERR(QString("子任务 %1 的分数为负").arg(i + 1));
         }
-        sum += subtasks[i].score;
+        sum += m_subtaskModel->m_subtasks[i].score;
 
-        subtasks[i].dependency.clear();
+        m_subtaskModel->m_subtasks[i].dependency.clear();
 
         auto depends = table->item(i, 2)->text().split(',');
 
@@ -126,18 +128,18 @@ void SubtaskPage::updateSubtasks()
                         .arg(dependId)
                         .arg(i));
             }
-            if (subtasks[i].dependency.contains(dependId))
+            if (m_subtaskModel->m_subtasks[i].dependency.contains(dependId))
             {
                 ERR(QString("子任务 %1 的依赖 [%2] 出现了超过一次").arg(i + 1).arg(dependId));
             }
-            subtasks[i].dependency.push_back(dependId);
+            m_subtaskModel->m_subtasks[i].dependency.push_back(dependId);
         }
 
-        for (auto x : subtasks[i].dependency)
+        for (auto x : m_subtaskModel->m_subtasks[i].dependency)
         {
-            for (auto y : subtasks[x - 1].dependency)
+            for (auto y : m_subtaskModel->m_subtasks[x - 1].dependency)
             {
-                if (!subtasks[i].dependency.contains(y))
+                if (!m_subtaskModel->m_subtasks[i].dependency.contains(y))
                 {
                     ERR(QString("子任务 %1 依赖 [%2] 而不依赖 [%3]，但 UOJ "
                                 "的子任务依赖是不具有传递性的")

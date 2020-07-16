@@ -15,8 +15,11 @@
 
 static const int MAX_DISPLAY_LENGTH = 10000;
 
-ExamplePage::ExamplePage(QWidget *parent) : QWizardPage(parent)
+ExamplePage::ExamplePage(ExampleModel *exampleModel, QWidget *parent)
+    : QWizardPage(parent), m_exampleModel(exampleModel)
 {
+    Q_ASSERT(m_exampleModel != nullptr);
+
     setTitle("添加样例");
 
     auto mainLayout = new QHBoxLayout(this);
@@ -54,12 +57,12 @@ ExamplePage::ExamplePage(QWidget *parent) : QWizardPage(parent)
     splitter->setSizes({1000000, 3000000});
 }
 
-QVector<ExamplePage::Example> ExamplePage::getExamples() const
+bool ExamplePage::validatePage()
 {
-    QVector<Example> examples;
+    m_exampleModel->m_examples.clear();
     for (int i = 0; i < list->count(); ++i)
-        examples.push_back(exampleEditsForItem[list->item(i)]->getExample());
-    return examples;
+        m_exampleModel->m_examples.push_back(exampleEditsForItem[list->item(i)]->getExample());
+    return true;
 }
 
 void ExamplePage::switchToExample(QListWidgetItem *item)
@@ -165,7 +168,7 @@ ExampleEdits::ExampleEdits(QWidget *parent) : QWidget(parent)
     mainLayout->addWidget(outputEdit);
 }
 
-ExamplePage::Example ExampleEdits::getExample()
+ExampleModel::Example ExampleEdits::getExample()
 {
     return {inputEdit->getContent(), outputEdit->getContent()};
 }

@@ -4,22 +4,17 @@
 
 class ErrorLabel;
 class QTableWidget;
-class TestCaseConvertPage;
+
+class ConvertedTestCaseModel;
+class SubtaskModel;
 
 class SubtaskPage : public QWizardPage
 {
     Q_OBJECT
 
    public:
-    struct Subtask
-    {
-        int start;
-        int end;
-        int score;
-        QVector<int> dependency;
-    };
-
-    explicit SubtaskPage(TestCaseConvertPage *testCaseConvertPage, QWidget *parent = nullptr);
+    explicit SubtaskPage(SubtaskModel *subtaskModel, ConvertedTestCaseModel *convertedTestCaseModel,
+                         QWidget *parent = nullptr);
 
     void initializePage() override;
 
@@ -27,18 +22,17 @@ class SubtaskPage : public QWizardPage
 
     bool isComplete() const override;
 
-    QVector<Subtask> getSubtasks() const;
-
    private slots:
     void updateSubtasks();
 
    private:
-    TestCaseConvertPage *convertPage = nullptr;
     ErrorLabel *errorLabel = nullptr;
     QTableWidget *table = nullptr;
 
     QMetaObject::Connection updateConnection;
 
     bool valid = false;
-    QVector<Subtask> subtasks;
+
+    SubtaskModel *m_subtaskModel = nullptr;
+    ConvertedTestCaseModel *m_convertedTestCaseModel = nullptr;
 };

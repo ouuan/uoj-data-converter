@@ -6,6 +6,8 @@
 class ListWidget;
 class QPushButton;
 
+class OriginalTestCaseModel;
+
 class TestCaseChoosePage;
 
 namespace TestCaseChoose
@@ -39,15 +41,15 @@ class TestCaseChoosePage : public QWizardPage
     Q_OBJECT
 
    public:
-    explicit TestCaseChoosePage(QWidget *parent = nullptr);
+    explicit TestCaseChoosePage(OriginalTestCaseModel *testCaseModel, QWidget *parent = nullptr);
 
     bool isComplete() const override;
 
-    QStringList inputs() const;
-
-    QStringList outputs() const;
+    bool validatePage() override;
 
    private:
     TestCaseChoose::TestCaseChooseLayout *inputLayout = nullptr;
     TestCaseChoose::TestCaseChooseLayout *outputLayout = nullptr;
+
+    OriginalTestCaseModel *m_originalTestCaseModel = nullptr;
 };

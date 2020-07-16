@@ -60,29 +60,37 @@ add_executable(uoj-data-converter
   src/MainWindow.hpp
   src/MainWindow.cpp
 
-  src/Pages/TestCaseChoosePage.hpp
-  src/Pages/TestCaseChoosePage.cpp
-  src/Pages/TestCaseConvertPage.hpp
-  src/Pages/TestCaseConvertPage.cpp
-  src/Pages/SubtaskPage.hpp
-  src/Pages/SubtaskPage.cpp
-  src/Pages/ExamplePage.hpp
-  src/Pages/ExamplePage.cpp
-  src/Pages/ProblemConfPage.hpp
-  src/Pages/ProblemConfPage.cpp
-  src/Pages/StdPage.hpp
-  src/Pages/StdPage.cpp
-  src/Pages/CommitOperationPage.hpp
-  src/Pages/CommitOperationPage.cpp
-  src/Pages/FinishPage.hpp
-  src/Pages/FinishPage.cpp
+  src/Models/ConvertedTestCaseModel.hpp
+  src/Models/ExampleModel.hpp
+  src/Models/OriginalTestCaseModel.hpp
+  src/Models/ProblemConfModel.hpp
+  src/Models/ResultModel.hpp
+  src/Models/StdModel.hpp
+  src/Models/SubtaskModel.hpp
 
-  src/Widgets/ErrorLabel.hpp
-  src/Widgets/ErrorLabel.cpp
-  src/Widgets/ListWidget.hpp
-  src/Widgets/ListWidget.cpp
-  src/Widgets/AcceptsDropEdit.hpp
+  src/Pages/CommitOperationPage.cpp
+  src/Pages/CommitOperationPage.hpp
+  src/Pages/ExamplePage.cpp
+  src/Pages/ExamplePage.hpp
+  src/Pages/FinishPage.cpp
+  src/Pages/FinishPage.hpp
+  src/Pages/ProblemConfPage.cpp
+  src/Pages/ProblemConfPage.hpp
+  src/Pages/StdPage.cpp
+  src/Pages/StdPage.hpp
+  src/Pages/SubtaskPage.cpp
+  src/Pages/SubtaskPage.hpp
+  src/Pages/TestCaseChoosePage.cpp
+  src/Pages/TestCaseChoosePage.hpp
+  src/Pages/TestCaseConvertPage.cpp
+  src/Pages/TestCaseConvertPage.hpp
+
   src/Widgets/AcceptsDropEdit.cpp
+  src/Widgets/AcceptsDropEdit.hpp
+  src/Widgets/ErrorLabel.cpp
+  src/Widgets/ErrorLabel.hpp
+  src/Widgets/ListWidget.cpp
+  src/Widgets/ListWidget.hpp
 
   resources/resources.qrc
 )
@@ -95,7 +103,7 @@ if(MSVC)
 endif(MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    target_compile_options(uoj-data-converter PRIVATE
+  target_compile_options(uoj-data-converter PRIVATE
     -ansi
     -pedantic
     -Wall

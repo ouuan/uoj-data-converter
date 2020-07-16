@@ -9,6 +9,13 @@
 #include <QVBoxLayout>
 #include <QWizard>
 
+#include "Models/ConvertedTestCaseModel.hpp"
+#include "Models/ExampleModel.hpp"
+#include "Models/OriginalTestCaseModel.hpp"
+#include "Models/ProblemConfModel.hpp"
+#include "Models/ResultModel.hpp"
+#include "Models/StdModel.hpp"
+#include "Models/SubtaskModel.hpp"
 #include "Pages/CommitOperationPage.hpp"
 #include "Pages/ExamplePage.hpp"
 #include "Pages/FinishPage.hpp"
@@ -78,15 +85,25 @@ void MainWindow::startGuide()
 {
     QWizard guide(this);
 
-    auto testCaseChoosePage = new TestCaseChoosePage(&guide);
-    auto testCaseConvertPage = new TestCaseConvertPage(testCaseChoosePage, &guide);
-    auto subtaskPage = new SubtaskPage(testCaseConvertPage, &guide);
-    auto examplePage = new ExamplePage(&guide);
-    auto problemConfPage =
-        new ProblemConfPage(testCaseConvertPage, subtaskPage, examplePage, &guide);
-    auto stdPage = new StdPage(&guide);
-    auto commitOperationPage = new CommitOperationPage(problemConfPage, stdPage, &guide);
-    auto finishPage = new FinishPage(commitOperationPage, stdPage, &guide);
+    auto convertedTestCaseModel = new ConvertedTestCaseModel();
+    auto exampleModel = new ExampleModel();
+    auto originalTestCaseModel = new OriginalTestCaseModel();
+    auto problemConfModel = new ProblemConfModel();
+    auto resultModel = new ResultModel();
+    auto stdModel = new StdModel();
+    auto subtaskModel = new SubtaskModel();
+
+    auto testCaseChoosePage = new TestCaseChoosePage(originalTestCaseModel, &guide);
+    auto testCaseConvertPage =
+        new TestCaseConvertPage(convertedTestCaseModel, originalTestCaseModel, &guide);
+    auto subtaskPage = new SubtaskPage(subtaskModel, convertedTestCaseModel, &guide);
+    auto examplePage = new ExamplePage(exampleModel, &guide);
+    auto problemConfPage = new ProblemConfPage(problemConfModel, convertedTestCaseModel,
+                                               subtaskModel, exampleModel, &guide);
+    auto stdPage = new StdPage(stdModel, &guide);
+    auto commitOperationPage = new CommitOperationPage(
+        resultModel, convertedTestCaseModel, exampleModel, problemConfModel, stdModel, &guide);
+    auto finishPage = new FinishPage(resultModel, stdModel, &guide);
 
     guide.addPage(testCaseChoosePage);
     guide.addPage(testCaseConvertPage);

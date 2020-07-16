@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+#include "Models/OriginalTestCaseModel.hpp"
 #include "Widgets/ListWidget.hpp"
 
 using TestCaseChoose::TestCaseChooseLayout;
@@ -52,8 +53,12 @@ void TestCaseChooseLayout::updateDeleteButton()
     deleteButton->setDisabled(list->selectedItems().isEmpty());
 }
 
-TestCaseChoosePage::TestCaseChoosePage(QWidget *parent) : QWizardPage(parent)
+TestCaseChoosePage::TestCaseChoosePage(OriginalTestCaseModel *originalTestCaseModel,
+                                       QWidget *parent)
+    : QWizardPage(parent), m_originalTestCaseModel(originalTestCaseModel)
 {
+    Q_ASSERT(m_originalTestCaseModel != nullptr);
+
     setTitle("选择数据文件");
 
     auto mainLayout = new QHBoxLayout(this);
@@ -70,12 +75,12 @@ bool TestCaseChoosePage::isComplete() const
     return inputLayout->list->count() && inputLayout->list->count() == outputLayout->list->count();
 }
 
-QStringList TestCaseChoosePage::inputs() const
+bool TestCaseChoosePage::validatePage()
 {
-    return inputLayout->list->itemLabels();
-}
+    if (!isComplete())
+        return false;
 
-QStringList TestCaseChoosePage::outputs() const
-{
-    return outputLayout->list->itemLabels();
+    m_originalTestCaseModel->m_inputs = inputLayout->list->itemLabels();
+    m_originalTestCaseModel->m_outputs = outputLayout->list->itemLabels();
+    return true;
 }

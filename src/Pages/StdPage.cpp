@@ -13,13 +13,16 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+#include "Models/StdModel.hpp"
 #include "Widgets/ErrorLabel.hpp"
 
 static const QString freopenRegexStr(
     R"RAW(freopen\s*\(\s*".+"\s*,\s*".+"\s*,\s*(?:stdin|stdout)\s*\)\s*;)RAW");
 
-StdPage::StdPage(QWidget *parent) : QWizardPage(parent)
+StdPage::StdPage(StdModel *stdModel, QWidget *parent) : QWizardPage(parent), m_stdModel(stdModel)
 {
+    Q_ASSERT(m_stdModel != nullptr);
+
     setTitle("选择 std");
 
     auto mainLayout = new QVBoxLayout(this);
@@ -50,11 +53,6 @@ StdPage::StdPage(QWidget *parent) : QWizardPage(parent)
     mainLayout->addWidget(removeFreopenCheckBox);
 }
 
-QString StdPage::getStd() const
-{
-    return stdContent;
-}
-
 bool StdPage::isComplete() const
 {
     if (pathEdit->text().trimmed().isEmpty() || QFileInfo(pathEdit->text()).isReadable())
@@ -80,14 +78,14 @@ void StdPage::chooseStd()
 void StdPage::updateStd()
 {
     if (!QFile::exists(pathEdit->text()))
-        stdContent.clear();
+        m_stdModel->m_std.clear();
     else
     {
         QFile stdFile(pathEdit->text());
         if (stdFile.open(QIODevice::ReadOnly | QIODevice::Text))
-            stdContent = stdFile.readAll();
+            m_stdModel->m_std = stdFile.readAll();
         if (removeFreopenCheckBox->isChecked())
-            stdContent.replace(QRegularExpression(freopenRegexStr), "");
+            m_stdModel->m_std.replace(QRegularExpression(freopenRegexStr), "");
     }
     emit completeChanged();
 }

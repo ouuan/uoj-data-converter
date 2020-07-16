@@ -14,16 +14,30 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include "ProblemConfPage.hpp"
-#include "StdPage.hpp"
+#include "Models/ConvertedTestCaseModel.hpp"
+#include "Models/ExampleModel.hpp"
+#include "Models/ProblemConfModel.hpp"
+#include "Models/ResultModel.hpp"
+#include "Models/StdModel.hpp"
 #include "Widgets/ErrorLabel.hpp"
 
-CommitOperationPage::CommitOperationPage(ProblemConfPage *problemConfPage, StdPage *stdPage,
+CommitOperationPage::CommitOperationPage(ResultModel *resultModel,
+                                         ConvertedTestCaseModel *convertedTestCaseModel,
+                                         ExampleModel *exampleModel,
+                                         ProblemConfModel *problemConfModel, StdModel *stdModel,
                                          QWidget *parent)
-    : QWizardPage(parent), m_problemConfPage(problemConfPage), m_stdPage(stdPage)
+    : QWizardPage(parent),
+      m_resultModel(resultModel),
+      m_convertedTestCaseModel(convertedTestCaseModel),
+      m_exampleModel(exampleModel),
+      m_problemConfModel(problemConfModel),
+      m_stdModel(stdModel)
 {
-    Q_ASSERT(problemConfPage != nullptr);
-    Q_ASSERT(stdPage != nullptr);
+    Q_ASSERT(m_resultModel != nullptr);
+    Q_ASSERT(m_convertedTestCaseModel != nullptr);
+    Q_ASSERT(m_exampleModel != nullptr);
+    Q_ASSERT(m_problemConfModel != nullptr);
+    Q_ASSERT(m_stdModel != nullptr);
 
     setTitle("应用操作");
     setCommitPage(true);
@@ -59,9 +73,8 @@ CommitOperationPage::CommitOperationPage(ProblemConfPage *problemConfPage, StdPa
 void CommitOperationPage::initializePage()
 {
     copyButton->setChecked(true);
-    pathEdit->setText(
-        QFileInfo(m_problemConfPage->getProblem().testCases.front().front().originalInput)
-            .canonicalPath());
+    pathEdit->setText(QFileInfo(m_convertedTestCaseModel->testCases().front().front().originalInput)
+                          .canonicalPath());
 }
 
 bool CommitOperationPage::validatePage()
@@ -77,7 +90,9 @@ bool CommitOperationPage::validatePage()
         ERR("输出路径不是一个文件夹")
     }
 
-    auto problem = m_problemConfPage->getProblem();
+    auto testCases = m_convertedTestCaseModel->testCases();
+    auto name = m_convertedTestCaseModel->name();
+    auto examples = m_exampleModel->examples();
 
     // 检查输出的文件是否在输出路径中存在
 
@@ -92,16 +107,16 @@ bool CommitOperationPage::validatePage()
     CHECK_EXISTS("problem.conf");
     CHECK_EXISTS("std.cpp");
 
-    for (int i = 0; i < problem.testCases.back().back().id; ++i)
+    for (int i = 0; i < testCases.back().back().id; ++i)
     {
-        CHECK_EXISTS(QString("%1%2.in").arg(problem.name).arg(i + 1));
-        CHECK_EXISTS(QString("%1%2.ans").arg(problem.name).arg(i + 1));
+        CHECK_EXISTS(QString("%1%2.in").arg(name).arg(i + 1));
+        CHECK_EXISTS(QString("%1%2.ans").arg(name).arg(i + 1));
     }
 
-    for (int i = 0; i < problem.examples.count(); ++i)
+    for (int i = 0; i < examples.count(); ++i)
     {
-        CHECK_EXISTS(QString("ex_%1%2.in").arg(problem.name).arg(i + 1));
-        CHECK_EXISTS(QString("ex_%1%2.ans").arg(problem.name).arg(i + 1));
+        CHECK_EXISTS(QString("ex_%1%2.in").arg(name).arg(i + 1));
+        CHECK_EXISTS(QString("ex_%1%2.ans").arg(name).arg(i + 1));
     }
 
 #undef CHECK_EXISTS
@@ -130,23 +145,21 @@ bool CommitOperationPage::validatePage()
         ERR("无法创建临时文件夹，错误：" + tempDir.errorString())
     }
 
-    for (auto subtask : problem.testCases)
+    for (auto subtask : testCases)
     {
         for (auto testCase : subtask)
         {
             if (copyButton->isChecked())
             {
-                if (!QFile::copy(
-                        testCase.originalInput,
-                        tempDir.filePath(QString("%1%2.in").arg(problem.name).arg(testCase.id))))
+                if (!QFile::copy(testCase.originalInput,
+                                 tempDir.filePath(QString("%1%2.in").arg(name).arg(testCase.id))))
                 {
                     ERR(QString("将 [%1] 复制到 [%2] 时失败")
                             .arg(testCase.originalInput)
                             .arg(tempDir.path()))
                 }
-                if (!QFile::copy(
-                        testCase.originalOutput,
-                        tempDir.filePath(QString("%1%2.ans").arg(problem.name).arg(testCase.id))))
+                if (!QFile::copy(testCase.originalOutput,
+                                 tempDir.filePath(QString("%1%2.ans").arg(name).arg(testCase.id))))
                 {
                     ERR(QString("将 [%1] 复制到 [%2] 时失败")
                             .arg(testCase.originalOutput)
@@ -155,9 +168,8 @@ bool CommitOperationPage::validatePage()
             }
             else
             {
-                if (!QFile::rename(
-                        testCase.originalInput,
-                        tempDir.filePath(QString("%1%2.in").arg(problem.name).arg(testCase.id))))
+                if (!QFile::rename(testCase.originalInput,
+                                   tempDir.filePath(QString("%1%2.in").arg(name).arg(testCase.id))))
                 {
                     ERR(QString("将 [%1] 移动到 [%2] 时失败")
                             .arg(testCase.originalInput)
@@ -165,7 +177,7 @@ bool CommitOperationPage::validatePage()
                 }
                 if (!QFile::rename(
                         testCase.originalOutput,
-                        tempDir.filePath(QString("%1%2.ans").arg(problem.name).arg(testCase.id))))
+                        tempDir.filePath(QString("%1%2.ans").arg(name).arg(testCase.id))))
                 {
                     ERR(QString("将 [%1] 移动到 [%2] 时失败")
                             .arg(testCase.originalOutput)
@@ -210,39 +222,34 @@ bool CommitOperationPage::validatePage()
 
     // 在输出路径写入样例
 
-    for (int i = 0; i < problem.examples.count(); ++i)
+    for (int i = 0; i < examples.count(); ++i)
     {
-        const QString inputPath =
-            outputDir.filePath(QString("ex_%1%2.in").arg(problem.name).arg(i + 1));
-        OVERWRITE(inputPath, problem.examples[i].input)
+        const QString inputPath = outputDir.filePath(QString("ex_%1%2.in").arg(name).arg(i + 1));
+        OVERWRITE(inputPath, examples[i].input)
 
-        const QString outputPath =
-            outputDir.filePath(QString("ex_%1%2.ans").arg(problem.name).arg(i + 1));
-        OVERWRITE(outputPath, problem.examples[i].output)
+        const QString outputPath = outputDir.filePath(QString("ex_%1%2.ans").arg(name).arg(i + 1));
+        OVERWRITE(outputPath, examples[i].output)
     }
 
     // 在输出路径写入 problem.conf
 
     const QString problemConfPath = outputDir.filePath("problem.conf");
-    OVERWRITE(problemConfPath, problem.problemConf);
+    OVERWRITE(problemConfPath, m_problemConfModel->problemConf());
 
     // 在输出路径中写入 std.cpp
 
     const QString stdPath = outputDir.filePath("std.cpp");
-    const QString stdContent = m_stdPage->getStd();
+    const QString stdContent = m_stdModel->std();
     if (!stdContent.isNull())
     {
         OVERWRITE(stdPath, stdContent)
     }
 
+    m_resultModel->m_outputPath = pathEdit->text();
+
     return true;
 
 #undef ERR
-}
-
-QString CommitOperationPage::getOutputPath() const
-{
-    return pathEdit->text();
 }
 
 void CommitOperationPage::choosePath()

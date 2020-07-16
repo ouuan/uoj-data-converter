@@ -8,16 +8,25 @@
 #include <QSpinBox>
 #include <QVBoxLayout>
 
-ProblemConfPage::ProblemConfPage(TestCaseConvertPage *testCaseConvertPage, SubtaskPage *subtaskPage,
-                                 ExamplePage *examplePage, QWidget *parent)
+#include "Models/ConvertedTestCaseModel.hpp"
+#include "Models/ExampleModel.hpp"
+#include "Models/ProblemConfModel.hpp"
+#include "Models/SubtaskModel.hpp"
+
+ProblemConfPage::ProblemConfPage(ProblemConfModel *problemConfModel,
+                                 ConvertedTestCaseModel *convertedTestCaseModel,
+                                 SubtaskModel *subtaskModel, ExampleModel *exampleModel,
+                                 QWidget *parent)
     : QWizardPage(parent),
-      m_testCaseConvertPage(testCaseConvertPage),
-      m_subtaskPage(subtaskPage),
-      m_examplePage(examplePage)
+      m_problemConfModel(problemConfModel),
+      m_convertedTestCaseModel(convertedTestCaseModel),
+      m_subtaskModel(subtaskModel),
+      m_exampleModel(exampleModel)
 {
-    Q_ASSERT(testCaseConvertPage != nullptr);
-    Q_ASSERT(subtaskPage != nullptr);
-    Q_ASSERT(examplePage != nullptr);
+    Q_ASSERT(m_problemConfModel != nullptr);
+    Q_ASSERT(m_convertedTestCaseModel != nullptr);
+    Q_ASSERT(m_subtaskModel != nullptr);
+    Q_ASSERT(m_exampleModel != nullptr);
 
     setTitle("生成 problem.conf");
 
@@ -69,17 +78,13 @@ ProblemConfPage::ProblemConfPage(TestCaseConvertPage *testCaseConvertPage, Subta
 
 void ProblemConfPage::initializePage()
 {
-    name = m_testCaseConvertPage->getProblemName();
-    testCases = m_testCaseConvertPage->getTestCases();
-    subtasks = m_subtaskPage->getSubtasks();
-    examples = m_examplePage->getExamples();
-
     updateProblemConf();
 }
 
-ProblemConfPage::Problem ProblemConfPage::getProblem() const
+bool ProblemConfPage::validatePage()
 {
-    return {name, testCases, subtasks, examples, problemConfEdit->toPlainText()};
+    m_problemConfModel->m_problemConf = problemConfEdit->toPlainText();
+    return true;
 }
 
 void ProblemConfPage::updateProblemConf()
@@ -96,14 +101,16 @@ void ProblemConfPage::updateProblemConf()
                            "memory_limit %5\n"
                            "output_limit 64\n"
                            "use_builtin_judger on\n")
-                           .arg(testCases.back().back().id)
-                           .arg(examples.count())
-                           .arg(name)
+                           .arg(m_convertedTestCaseModel->testCases().back().back().id)
+                           .arg(m_exampleModel->examples().count())
+                           .arg(m_convertedTestCaseModel->name())
                            .arg(timeLimitSpinBox->value())
                            .arg(memoryLimitSpinBox->value());
 
     if (checkerComboBox->currentText() != "自定义")
         problemConf += QString("use_builtin_checker %6\n").arg(checkerComboBox->currentText());
+
+    auto subtasks = m_subtaskModel->subtasks();
 
     if (!subtasks.isEmpty())
     {

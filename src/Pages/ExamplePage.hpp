@@ -3,6 +3,8 @@
 #include <QMap>
 #include <QWizardPage>
 
+#include "Models/ExampleModel.hpp"
+
 class AcceptsDropEdit;
 class QListWidget;
 class QListWidgetItem;
@@ -16,15 +18,9 @@ class ExamplePage : public QWizardPage
     Q_OBJECT
 
    public:
-    struct Example
-    {
-        QString input;
-        QString output;
-    };
+    explicit ExamplePage(ExampleModel *exampleModel, QWidget *parent = nullptr);
 
-    explicit ExamplePage(QWidget *parent = nullptr);
-
-    QVector<Example> getExamples() const;
+    bool validatePage() override;
 
    private slots:
     void switchToExample(QListWidgetItem *item);
@@ -42,6 +38,8 @@ class ExamplePage : public QWizardPage
 
     QMap<QListWidgetItem *, ExampleEdits *> exampleEditsForItem;
     QMap<ExampleEdits *, QListWidgetItem *> itemForExampleEdits;
+
+    ExampleModel *m_exampleModel = nullptr;
 };
 
 class ExampleEdit : public QWidget
@@ -72,7 +70,7 @@ class ExampleEdits : public QWidget
    public:
     explicit ExampleEdits(QWidget *parent = nullptr);
 
-    ExamplePage::Example getExample();
+    ExampleModel::Example getExample();
 
    private:
     ExampleEdit *inputEdit = nullptr;

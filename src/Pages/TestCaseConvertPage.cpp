@@ -10,13 +10,20 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 
+#include "Models/ConvertedTestCaseModel.hpp"
+#include "Models/OriginalTestCaseModel.hpp"
 #include "TestCaseChoosePage.hpp"
 #include "Widgets/ErrorLabel.hpp"
 
-TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage, QWidget *parent)
-    : QWizardPage(parent), choosePage(testCaseChoosePage)
+TestCaseConvertPage::TestCaseConvertPage(ConvertedTestCaseModel *convertedTestCaseModel,
+                                         OriginalTestCaseModel *originalTestCaseModel,
+                                         QWidget *parent)
+    : QWizardPage(parent),
+      m_convertedTestCaseModel(convertedTestCaseModel),
+      m_originalTestCaseModel(originalTestCaseModel)
 {
-    Q_ASSERT(choosePage != nullptr);
+    Q_ASSERT(m_convertedTestCaseModel != nullptr);
+    Q_ASSERT(m_originalTestCaseModel != nullptr);
 
     setTitle("数据格式转换");
 
@@ -81,8 +88,9 @@ TestCaseConvertPage::TestCaseConvertPage(TestCaseChoosePage *testCaseChoosePage,
 
 void TestCaseConvertPage::initializePage()
 {
-    inputs = choosePage->inputs();
-    outputs = choosePage->outputs();
+    const auto inputs = m_originalTestCaseModel->inputs();
+    const auto outputs = m_originalTestCaseModel->outputs();
+
     Q_ASSERT(!inputs.empty());
     Q_ASSERT(inputs.count() == outputs.count());
     subtaskBegins = QVector<bool>(inputs.size());
@@ -122,21 +130,14 @@ bool TestCaseConvertPage::isComplete() const
 
 int TestCaseConvertPage::nextId() const
 {
-    return QWizardPage::nextId() + (testCases.size() == 1);
-}
-
-QString TestCaseConvertPage::getProblemName() const
-{
-    return problemNameEdit->text();
-}
-
-QVector<QVector<TestCaseConvertPage::TestCase>> TestCaseConvertPage::getTestCases() const
-{
-    return testCases;
+    return QWizardPage::nextId() + (m_convertedTestCaseModel->m_testCases.size() == 1);
 }
 
 void TestCaseConvertPage::updateResult()
 {
+    const auto inputs = m_originalTestCaseModel->inputs();
+    const auto outputs = m_originalTestCaseModel->outputs();
+
     errorLabel->hide();
 
     if (problemNameEdit->text().trimmed().isEmpty())
@@ -208,16 +209,20 @@ void TestCaseConvertPage::updateResult()
     if (pairedOutputs.count() != outputs.count())
         pairedOutputs = outputs;
 
-    testCases.clear();
+    m_convertedTestCaseModel->m_testCases.clear();
+
+    m_convertedTestCaseModel->m_name = problemNameEdit->text();
 
     for (int i = 0; i < inputs.count(); ++i)
     {
         if (subtaskBegins[i])
-            testCases.push_back(QVector<TestCase>());
-        TestCase testCase = {i + 1, inputs[i], pairedOutputs[i],
-                             QString("%1%2.in").arg(getProblemName()).arg(i + 1),
-                             QString("%1%2.ans").arg(getProblemName()).arg(i + 1)};
-        testCases.back().push_back(testCase);
+            m_convertedTestCaseModel->m_testCases.push_back(
+                QVector<ConvertedTestCaseModel::TestCase>());
+        ConvertedTestCaseModel::TestCase testCase = {
+            i + 1, inputs[i], pairedOutputs[i],
+            QString("%1%2.in").arg(m_convertedTestCaseModel->m_name).arg(i + 1),
+            QString("%1%2.ans").arg(m_convertedTestCaseModel->m_name).arg(i + 1)};
+        m_convertedTestCaseModel->m_testCases.back().push_back(testCase);
 
         auto setText = [this, i](int column, const QString &text) {
             auto item = table->item(i, column);
@@ -234,7 +239,7 @@ void TestCaseConvertPage::updateResult()
         setText(1, QFileInfo(testCase.originalOutput).fileName());
         setText(2, testCase.convertedInput);
         setText(3, testCase.convertedOutput);
-        setText(4, QString::number(testCases.count()));
+        setText(4, QString::number(m_convertedTestCaseModel->m_testCases.count()));
     }
 
     emit completeChanged();
@@ -255,7 +260,7 @@ void TestCaseConvertPage::setSubtask()
     for (int i = min + 1; i <= max; ++i)
         subtaskBegins[i] = false;
     subtaskBegins[min] = true;
-    if (max + 1 < inputs.count())
+    if (max + 1 < m_originalTestCaseModel->inputs().count())
         subtaskBegins[max + 1] = true;
 
     updateResult();

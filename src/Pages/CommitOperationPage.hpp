@@ -3,34 +3,42 @@
 #include <QWizardPage>
 
 class ErrorLabel;
-class ProblemConfPage;
 class QRadioButton;
 class QLineEdit;
-class StdPage;
+
+class ConvertedTestCaseModel;
+class ExampleModel;
+class ProblemConfModel;
+class ResultModel;
+class StdModel;
 
 class CommitOperationPage : public QWizardPage
 {
     Q_OBJECT
 
    public:
-    explicit CommitOperationPage(ProblemConfPage *problemConfPage, StdPage *stdPage,
-                                 QWidget *parent = nullptr);
+    explicit CommitOperationPage(ResultModel *resultModel,
+                                 ConvertedTestCaseModel *convertedTestCaseModel,
+                                 ExampleModel *exampleModel, ProblemConfModel *problemConfModel,
+                                 StdModel *stdModel, QWidget *parent = nullptr);
 
     void initializePage() override;
 
     // It not only validates this page, but also commits the operations
     bool validatePage() override;
 
-    QString getOutputPath() const;
-
    private slots:
     void choosePath();
 
    private:
-    ProblemConfPage *m_problemConfPage = nullptr;
-    StdPage *m_stdPage = nullptr;
     QRadioButton *copyButton = nullptr;
     QRadioButton *moveButton = nullptr;
     QLineEdit *pathEdit = nullptr;
     ErrorLabel *errorLabel = nullptr;
+
+    ResultModel *m_resultModel = nullptr;
+    ConvertedTestCaseModel *m_convertedTestCaseModel = nullptr;
+    ExampleModel *m_exampleModel = nullptr;
+    ProblemConfModel *m_problemConfModel = nullptr;
+    StdModel *m_stdModel = nullptr;
 };

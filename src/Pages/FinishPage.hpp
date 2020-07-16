@@ -2,25 +2,26 @@
 
 #include <QWizardPage>
 
-class CommitOperationPage;
 class QCheckBox;
-class StdPage;
+
+class ResultModel;
+class StdModel;
 
 class FinishPage : public QWizardPage
 {
     Q_OBJECT
 
    public:
-    explicit FinishPage(CommitOperationPage *commitOperationPage, StdPage *stdPage,
-                        QWidget *parent = nullptr);
+    explicit FinishPage(ResultModel *resultModel, StdModel *stdModel, QWidget *parent = nullptr);
 
     void initializePage() override;
 
     bool validatePage() override;
 
    private:
-    CommitOperationPage *m_commitOperationPage = nullptr;
-    StdPage *m_stdPage = nullptr;
     QCheckBox *openOutputCheckBox = nullptr;
     QCheckBox *copyStdCheckBox = nullptr;
+
+    ResultModel *m_resultModel = nullptr;
+    StdModel *m_stdModel = nullptr;
 };

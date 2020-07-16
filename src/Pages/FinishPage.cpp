@@ -7,14 +7,14 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
-#include "CommitOperationPage.hpp"
-#include "StdPage.hpp"
+#include "Models/ResultModel.hpp"
+#include "Models/StdModel.hpp"
 
-FinishPage::FinishPage(CommitOperationPage *commitOperationPage, StdPage *stdPage, QWidget *parent)
-    : QWizardPage(parent), m_commitOperationPage(commitOperationPage), m_stdPage(stdPage)
+FinishPage::FinishPage(ResultModel *resultModel, StdModel *stdModel, QWidget *parent)
+    : QWizardPage(parent), m_resultModel(resultModel), m_stdModel(stdModel)
 {
-    Q_ASSERT(commitOperationPage != nullptr);
-    Q_ASSERT(stdPage != nullptr);
+    Q_ASSERT(m_resultModel != nullptr);
+    Q_ASSERT(m_stdModel != nullptr);
 
     setTitle("所有操作均已完成");
     setFinalPage(true);
@@ -30,7 +30,7 @@ FinishPage::FinishPage(CommitOperationPage *commitOperationPage, StdPage *stdPag
 
 void FinishPage::initializePage()
 {
-    if (m_stdPage->getStd().isNull())
+    if (m_stdModel->std().isNull())
     {
         copyStdCheckBox->setChecked(false);
         copyStdCheckBox->hide();
@@ -42,10 +42,10 @@ void FinishPage::initializePage()
 bool FinishPage::validatePage()
 {
     if (copyStdCheckBox->isChecked())
-        QGuiApplication::clipboard()->setText(m_stdPage->getStd());
+        QGuiApplication::clipboard()->setText(m_stdModel->std());
 
     if (openOutputCheckBox->isChecked())
-        QDesktopServices::openUrl(QUrl::fromLocalFile(m_commitOperationPage->getOutputPath()));
+        QDesktopServices::openUrl(QUrl::fromLocalFile(m_resultModel->outputPath()));
 
     return true;
 }

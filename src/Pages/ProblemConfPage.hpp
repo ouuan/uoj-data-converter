@@ -2,34 +2,28 @@
 
 #include <QWizardPage>
 
-#include "Pages/ExamplePage.hpp"
-#include "Pages/SubtaskPage.hpp"
-#include "Pages/TestCaseConvertPage.hpp"
-
 class QComboBox;
 class QPlainTextEdit;
 class QSpinBox;
+
+class ConvertedTestCaseModel;
+class ExampleModel;
+class ProblemConfModel;
+class SubtaskModel;
 
 class ProblemConfPage : public QWizardPage
 {
     Q_OBJECT
 
    public:
-    struct Problem
-    {
-        QString name;
-        QVector<QVector<TestCaseConvertPage::TestCase>> testCases;
-        QVector<SubtaskPage::Subtask> subtasks;
-        QVector<ExamplePage::Example> examples;
-        QString problemConf;
-    };
-
-    explicit ProblemConfPage(TestCaseConvertPage *testCaseConvertPage, SubtaskPage *subtaskPage,
-                             ExamplePage *examplePage, QWidget *parent = nullptr);
+    explicit ProblemConfPage(ProblemConfModel *problemConfModel,
+                             ConvertedTestCaseModel *convertedTestCaseModel,
+                             SubtaskModel *subtaskModel, ExampleModel *exampleModel,
+                             QWidget *parent = nullptr);
 
     void initializePage() override;
 
-    Problem getProblem() const;
+    bool validatePage() override;
 
    private slots:
     void updateProblemConf();
@@ -40,12 +34,8 @@ class ProblemConfPage : public QWizardPage
     QComboBox *checkerComboBox = nullptr;
     QPlainTextEdit *problemConfEdit = nullptr;
 
-    TestCaseConvertPage *m_testCaseConvertPage;
-    SubtaskPage *m_subtaskPage;
-    ExamplePage *m_examplePage;
-
-    QString name;
-    QVector<QVector<TestCaseConvertPage::TestCase>> testCases;
-    QVector<SubtaskPage::Subtask> subtasks;
-    QVector<ExamplePage::Example> examples;
+    ProblemConfModel *m_problemConfModel = nullptr;
+    ConvertedTestCaseModel *m_convertedTestCaseModel = nullptr;
+    SubtaskModel *m_subtaskModel = nullptr;
+    ExampleModel *m_exampleModel = nullptr;
 };
