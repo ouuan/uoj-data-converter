@@ -85,34 +85,34 @@ void MainWindow::startGuide()
 {
     QWizard guide(this);
 
-    auto convertedTestCaseModel = new ConvertedTestCaseModel();
-    auto exampleModel = new ExampleModel();
-    auto originalTestCaseModel = new OriginalTestCaseModel();
-    auto problemConfModel = new ProblemConfModel();
-    auto resultModel = new ResultModel();
-    auto stdModel = new StdModel();
-    auto subtaskModel = new SubtaskModel();
+    ConvertedTestCaseModel convertedTestCaseModel;
+    ExampleModel exampleModel;
+    OriginalTestCaseModel originalTestCaseModel;
+    ProblemConfModel problemConfModel;
+    ResultModel resultModel;
+    StdModel stdModel;
+    SubtaskModel subtaskModel;
 
-    auto testCaseChoosePage = new TestCaseChoosePage(originalTestCaseModel, &guide);
-    auto testCaseConvertPage =
-        new TestCaseConvertPage(convertedTestCaseModel, originalTestCaseModel, &guide);
-    auto subtaskPage = new SubtaskPage(subtaskModel, convertedTestCaseModel, &guide);
-    auto examplePage = new ExamplePage(exampleModel, &guide);
-    auto problemConfPage = new ProblemConfPage(problemConfModel, convertedTestCaseModel,
-                                               subtaskModel, exampleModel, &guide);
-    auto stdPage = new StdPage(stdModel, &guide);
-    auto commitOperationPage = new CommitOperationPage(
-        resultModel, convertedTestCaseModel, exampleModel, problemConfModel, stdModel, &guide);
-    auto finishPage = new FinishPage(resultModel, stdModel, &guide);
+    TestCaseChoosePage testCaseChoosePage(&originalTestCaseModel, &guide);
+    TestCaseConvertPage testCaseConvertPage(&convertedTestCaseModel, &originalTestCaseModel,
+                                            &guide);
+    SubtaskPage subtaskPage(&subtaskModel, &convertedTestCaseModel, &guide);
+    ExamplePage examplePage(&exampleModel, &guide);
+    ProblemConfPage problemConfPage(&problemConfModel, &convertedTestCaseModel, &subtaskModel,
+                                    &exampleModel, &guide);
+    StdPage stdPage(&stdModel, &guide);
+    CommitOperationPage commitOperationPage(&resultModel, &convertedTestCaseModel, &exampleModel,
+                                            &problemConfModel, &stdModel, &guide);
+    FinishPage finishPage(&resultModel, &stdModel, &guide);
 
-    guide.addPage(testCaseChoosePage);
-    guide.addPage(testCaseConvertPage);
-    guide.addPage(subtaskPage);
-    guide.addPage(examplePage);
-    guide.addPage(problemConfPage);
-    guide.addPage(stdPage);
-    guide.addPage(commitOperationPage);
-    guide.addPage(finishPage);
+    guide.addPage(&testCaseChoosePage);
+    guide.addPage(&testCaseConvertPage);
+    guide.addPage(&subtaskPage);
+    guide.addPage(&examplePage);
+    guide.addPage(&problemConfPage);
+    guide.addPage(&stdPage);
+    guide.addPage(&commitOperationPage);
+    guide.addPage(&finishPage);
     guide.setWindowTitle("数据转换向导");
 
     guide.exec();
