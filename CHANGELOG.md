@@ -1,5 +1,10 @@
 ## 未发布
 
+## 0.4.1
+
+-   进行了一些代码重构。
+-   在 [AUR](https://aur.archlinux.org/packages/uoj-data-converter/) 进行了发布。
+
 ## 0.4.0
 
 ### 新功能
