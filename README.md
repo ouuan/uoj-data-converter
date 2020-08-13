@@ -4,6 +4,8 @@
 
 [![Build Status](https://github.com/ouuan/uoj-data-converter/workflows/Build/badge.svg?branch=master)](https://github.com/ouuan/uoj-data-converter/actions?query=workflow%3ABuild+branch%3Amaster)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/069303dace1d445487962249b7b96407)](https://www.codacy.com/manual/ouuan/uoj-data-converter)
+[![AUR version](https://img.shields.io/aur/version/uoj-data-converter)](https://aur.archlinux.org/packages/uoj-data-converter/)
+[![AUR version](https://img.shields.io/aur/version/uoj-data-converter-git)](https://aur.archlinux.org/packages/uoj-data-converter-git/)
 
 ## Features
 
