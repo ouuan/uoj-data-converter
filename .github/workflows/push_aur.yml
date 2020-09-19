@@ -44,10 +44,11 @@ jobs:
           pkgname: ${{ env.PKGNAME }}
 
       - name: Publish to AUR
-        uses: KSXGitHub/github-actions-deploy-aur@master
+        uses: KSXGitHub/github-actions-deploy-aur@v2.2.0
         with:
           pkgname: ${{ env.PKGNAME }}
           pkgbuild: ${{ env.PKGNAME }}/PKGBUILD
+          force_push: true
           commit_username: Yufan You
           commit_email: ouuansteve@gmail.com
           commit_message: "Update from GitHub Actions: ${{ steps.get-version.outputs.version }}\n\nThe run ID: ${{ github.run_id }}"
