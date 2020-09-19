@@ -130,5 +130,5 @@ if(UNIX AND NOT APPLE)
           RUNTIME DESTINATION bin
           LIBRARY DESTINATION lib)
   install(FILES .ci/linux/uoj-data-converter.desktop DESTINATION share/applications)
-  install(FILES .ci/linux/icon.png DESTINATION share/icons)
+  install(FILES .ci/linux/icon.png DESTINATION share/icons/hicolor/256x256/apps RENAME uoj-data-converter.png)
 endif()
