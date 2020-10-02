@@ -43,13 +43,21 @@ jobs:
           target: srcinfo
           pkgname: ${{ env.PKGNAME }}
 
-      - name: Publish to AUR
-        uses: KSXGitHub/github-actions-deploy-aur@v2.2.0
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
         with:
-          pkgname: ${{ env.PKGNAME }}
-          pkgbuild: ${{ env.PKGNAME }}/PKGBUILD
-          force_push: true
-          commit_username: Yufan You
-          commit_email: ouuansteve@gmail.com
-          commit_message: "Update from GitHub Actions: ${{ steps.get-version.outputs.version }}\n\nThe run ID: ${{ github.run_id }}"
-          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      - name: Clone AUR and update
+        run: |
+          git clone ssh://aur@aur.archlinux.org/${PKGNAME}.git ../aur
+          cp ${PKGNAME}/PKGBUILD ${PKGNAME}/.SRCINFO ../aur
+          cd ../aur
+          git config user.name "Yufan You"
+          git config user.email "ouuansteve@gmail.com"
+          git add -A
+          git diff-index @ --exit-code --quiet || git commit -m "Update from GitHub Actions: ${{ steps.get-version.outputs.version }}
+
+          https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
+          git push
