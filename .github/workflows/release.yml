@@ -94,7 +94,7 @@ jobs:
           mv build/Release/uoj-data-converter.exe build/out
           ../Qt/*/*/bin/windeployqt.exe build/out/uoj-data-converter.exe --no-translations
           cd "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Redist/MSVC"
-          echo ::set-env name=VC_REDIST_VERSION::$(ls -dr *.* | head -n1)
+          echo "VC_REDIST_VERSION=\"$(ls -dr *.* | head -n1)\"" >> $GITHUB_ENV
 
       - name: Pack to installer on Windows
         if: startsWith(matrix.os, 'windows')
