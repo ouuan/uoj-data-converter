@@ -104,7 +104,6 @@ endif(MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   target_compile_options(uoj-data-converter PRIVATE
-    -ansi
     -pedantic
     -Wall
     -Wextra
