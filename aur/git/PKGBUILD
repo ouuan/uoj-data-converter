@@ -15,7 +15,7 @@ makedepends=(
 )
 provides=('uoj-data-converter')
 conflicts=('uoj-data-converter')
-source=('git://github.com/ouuan/uoj-data-converter.git')
+source=('git+https://github.com/ouuan/uoj-data-converter.git')
 md5sums=('SKIP')
 
 pkgver() {

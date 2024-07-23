@@ -8,9 +8,6 @@ on:
       - "**.md"
       - ".gitignore"
 
-env:
-  PKGNAME: uoj-data-converter-git
-
 jobs:
   aur:
     name: "Update AUR"
@@ -28,20 +25,12 @@ jobs:
 
       - name: Update PKGBUILD
         run: |
-          sed -i "s/@VERSION@/${{ steps.get-version.outputs.version }}/" aur/git/PKGBUILD aur/git/.SRCINFO
-          mv aur/git "$PKGNAME"
+          sed -i "s/@VERSION@/${{ steps.get-version.outputs.version }}/" aur/git/PKGBUILD
 
       - name: Check PKGBUILD
-        uses: 2m/arch-pkgbuild-builder@master
+        uses: ouuan/pkgbuild-action@master
         with:
-          target: pkgbuild
-          pkgname: ${{ env.PKGNAME }}
-
-      - name: Check .SRCINFO
-        uses: 2m/arch-pkgbuild-builder@master
-        with:
-          target: srcinfo
-          pkgname: ${{ env.PKGNAME }}
+          path: aur/git
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -51,8 +40,11 @@ jobs:
 
       - name: Clone AUR and update
         run: |
-          git clone ssh://aur@aur.archlinux.org/${PKGNAME}.git ../aur
-          cp ${PKGNAME}/PKGBUILD ${PKGNAME}/.SRCINFO ../aur
+          git clone ssh://aur@aur.archlinux.org/uoj-data-converter-git.git ../aur
+          shopt -s dotglob
+          shopt -s extglob
+          rm ../aur/!(.git|.|..) || true
+          cp aur/git/* ../aur
           cd ../aur
           git config user.name "Yufan You"
           git config user.email "ouuansteve@gmail.com"

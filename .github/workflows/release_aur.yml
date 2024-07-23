@@ -5,9 +5,6 @@ on:
     types:
       - published
 
-env:
-  PKGNAME: uoj-data-converter
-
 jobs:
   aur:
     name: "Update AUR"
@@ -27,22 +24,13 @@ jobs:
         run: |
           wget -c https://github.com/${{ github.repository }}/archive/${{ steps.get-version.outputs.version }}.tar.gz
           sha256sum=$(shasum -a 256 *.tar.gz | cut -d ' ' -f 1)
-          sed -i "s/@VERSION@/${{ steps.get-version.outputs.version }}/g" aur/release/PKGBUILD aur/release/.SRCINFO
-          sed -i "s/SKIP/${sha256sum}/" aur/release/PKGBUILD aur/release/.SRCINFO
-          mv aur/release "$PKGNAME"
+          sed -i "s/@VERSION@/${{ steps.get-version.outputs.version }}/g" aur/release/PKGBUILD
+          sed -i "s/SKIP/${sha256sum}/" aur/release/PKGBUILD
 
       - name: Check PKGBUILD
-        uses: 2m/arch-pkgbuild-builder@master
+        uses: ouuan/pkgbuild-action@master
         with:
-          target: pkgbuild
-          pkgname: ${{ env.PKGNAME }}
-          debug: true
-
-      - name: Check .SRCINFO
-        uses: 2m/arch-pkgbuild-builder@master
-        with:
-          target: srcinfo
-          pkgname: ${{ env.PKGNAME }}
+          path: aur/release
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -52,8 +40,11 @@ jobs:
 
       - name: Clone AUR and update
         run: |
-          git clone ssh://aur@aur.archlinux.org/${PKGNAME}.git ../aur
-          cp ${PKGNAME}/PKGBUILD ${PKGNAME}/.SRCINFO ../aur
+          git clone ssh://aur@aur.archlinux.org/uoj-data-converter.git ../aur
+          shopt -s dotglob
+          shopt -s extglob
+          rm ../aur/!(.git|.|..) || true
+          cp aur/git/* ../aur
           cd ../aur
           git config user.name "Yufan You"
           git config user.email "ouuansteve@gmail.com"
